@@ -63,7 +63,7 @@ sequenceDiagram
         .input(z.object({
           problemId: z.string().uuid(),
           code: z.string().min(1),
-          language: z.enum(['cpp', 'java', 'python', 'go'])
+          language: z.enum(['c', 'cpp', 'csharp', 'java', 'python', 'go', 'zig'])
         }))
         .mutation(async ({ input, ctx }) => {
           const submission = await ctx.db.insert(submissions).values({

@@ -42,7 +42,7 @@ apps/web/
 ### 1. Workspace Làm Bài (Problem Details & Code Editor)
 - **Mô tả**: Giao diện chia làm 2 cột chính:
   - **Cột trái**: Chi tiết bài toán (Đề bài, ví dụ Input/Output, Ràng buộc thời gian/bộ nhớ).
-  - **Cột phải**: Trình soạn thảo mã nguồn (Monaco Editor) hỗ trợ tô sáng cú pháp (C++, Java, Python, Go, C#), bảng chọn ngôn ngữ, nút "Chạy thử" (Run code với testcase mẫu) và "Nộp bài" (Submit).
+  - **Cột phải**: Trình soạn thảo mã nguồn (Monaco Editor) hỗ trợ tô sáng cú pháp (C/C++, Java, Python, Go, C#, Zig), bảng chọn ngôn ngữ, nút "Chạy thử" (Run code với testcase mẫu) và "Nộp bài" (Submit).
 
 ### 2. Bảng Xếp Hạng (Leaderboard)
 - Cập nhật thời gian thực điểm số, số bài đã AC (Accepted), và thời gian làm bài của sinh viên.

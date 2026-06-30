@@ -14,7 +14,7 @@
 ### **Ngôn ngữ hỗ trợ chấm (Supported Languages)**
 <p align="left">
   <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=c,cpp,cs,java,py,go" />
+    <img src="https://skillicons.dev/icons?i=c,cpp,cs,java,py,go,zig" />
   </a>
 </p>
 
