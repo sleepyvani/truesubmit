@@ -80,7 +80,7 @@ sequenceDiagram
           });
 
           // Đẩy vào Redis Queue bất đồng bộ
-          await ctx.redis.lpush('submission_queue', JSON.stringify({
+          await ctx.redis.lpush('truesubmit_queue', JSON.stringify({
             submissionId: submission[0].id,
             code: input.code,
             language: input.language,
@@ -114,7 +114,7 @@ sequenceDiagram
 ### 2. Redis Queue (Giảm chấn tải cao)
 * **Mục đích**: Bộ đệm trung gian lưu trữ các Job chấm bài để Worker xử lý tuần tự/song song theo tài nguyên cho phép, bảo vệ Go Worker không bị sập vì tạo quá nhiều Docker Sandbox cùng lúc.
 * **Chi tiết cấu trúc Payload (Job Format)**:
-  Mỗi Job được đẩy lên hàng đợi `submission_queue` dưới dạng chuỗi JSON có cấu trúc như sau:
+  Mỗi Job được đẩy lên hàng đợi `truesubmit_queue` dưới dạng chuỗi JSON có cấu trúc như sau:
   ```json
   {
     "submissionId": "f789d98e-4a6c-48d9-952b-87d3a01bf280",
@@ -132,48 +132,46 @@ sequenceDiagram
   ```protobuf
   syntax = "proto3";
 
-  package truesubmit.v1;
+  package submission;
 
-  option go_package = "apps/worker/grpc/v1;v1";
+  option go_package = "truesubmit/worker/internal/pb";
 
-  service SubmissionResultService {
+  service SubmissionService {
     rpc ReportResult (ReportResultRequest) returns (ReportResultResponse);
   }
 
   message ReportResultRequest {
-    string submission_id = 1;
-    string verdict = 2;              // AC (Accepted), WA (Wrong Answer), TLE, MLE, CE
-    int32 execution_time_ms = 3;
-    int32 execution_memory_kb = 4;
-    string compiler_message = 5;      // Thông tin chi tiết lỗi biên dịch nếu có
+    string submissionId = 1;
+    string status = 2; // AC, WA, TLE, MLE, RE, CE
+    int64 timeTakenMs = 3;
+    string errorLog = 4;
+    string token = 5; // Internal auth token
   }
 
   message ReportResultResponse {
     bool success = 1;
+    string message = 2;
   }
   ```
-* **Chi tiết mã hóa Golang Client & Metadata Auth**:
+* **Chi tiết mã hóa Golang Client gọi gRPC**:
   ```go
-  // apps/worker/judge/reporter.go
-  package judge
+  // apps/worker/main.go
+  req := &pb.ReportResultRequest{
+      SubmissionId: job.SubmissionID,
+      Status:       finalStatus,
+      TimeTakenMs:  totalTimeTaken.Milliseconds(),
+      ErrorLog:     detailedErrorLog,
+      Token:        token,
+  }
 
-  import (
-      "context"
-      "google.golang.org/grpc"
-      "google.golang.org/grpc/metadata"
-      pb "apps/worker/grpc/v1"
-  )
-
-  func ReportToBackend(grpcServerAddr string, token string, req *pb.ReportResultRequest) error {
-      conn, _ := grpc.Dial(grpcServerAddr, grpc.WithInsecure())
-      defer conn.Close()
-      client := pb.NewSubmissionResultServiceClient(conn)
-
-      // Ký token xác thực nội bộ vào gRPC Metadata
-      ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", token)
-      
-      _, err := client.ReportResult(ctx, req)
-      return err
+  for retry := 1; retry <= 3; retry++ {
+      resp, err := grpcClient.ReportResult(ctx, req)
+      if err == nil && resp.Success {
+          log.Printf("[Sub #%s] Successfully reported result to backend: %s\n", job.SubmissionID, resp.Message)
+          break
+      }
+      log.Printf("[Sub #%s] Failed reporting result to backend (Attempt %d/3): %v\n", job.SubmissionID, retry, err)
+      time.Sleep(1 * time.Second)
   }
   ```
 
