@@ -1,10 +1,10 @@
-# TrueSubmit <img src="https://images.weserv.nl/?url=https://api.iconify.design/solar/rocket-bold-duotone.svg?color=%25230070f3&output=png&w=48&h=48" width="48" height="48" align="center" />
+# TrueSubmit <img src="https://api.iconify.design/solar/rocket-bold-duotone.svg?color=%230070f3" width="48" height="48" align="center" />
 
 **TrueSubmit** là hệ thống chấm bài trực tuyến (Online Judge) hiệu năng cao, được thiết kế chuyên biệt để tổ chức các kỳ thi lập trình quy mô lớn với tốc độ chấm bài siêu tốc và tính bảo mật tuyệt đối.
 
 ---
 
-## <img src="https://images.weserv.nl/?url=https://api.iconify.design/solar/target-bold-duotone.svg?color=%25230070f3&output=png&w=28&h=28" width="28" height="28" align="center" /> 1. Mục Tiêu Dự Án & Chỉ Số Hiệu Năng
+## <img src="https://api.iconify.design/solar/target-bold-duotone.svg?color=%230070f3" width="28" height="28" align="center" /> 1. Mục Tiêu Dự Án & Chỉ Số Hiệu Năng
 
 Hệ thống được thiết kế để giải quyết triệt để bài toán **1000 sinh viên nộp bài đồng thời trong cùng 1 giờ thi** dưới các ràng buộc kỹ thuật khắt khe:
 * **Thời gian phản hồi sub-50ms**: Tối ưu hóa tối đa thời gian từ lúc nhận bài cho tới khi khởi chạy sandbox.
@@ -14,7 +14,7 @@ Hệ thống được thiết kế để giải quyết triệt để bài toán
 
 ---
 
-## <img src="https://images.weserv.nl/?url=https://api.iconify.design/solar/users-group-two-rounded-bold-duotone.svg?color=%25230070f3&output=png&w=28&h=28" width="28" height="28" align="center" /> 2. Phân Định Vai Trò Phát Triển (Human-AI Collaboration)
+## <img src="https://api.iconify.design/solar/users-group-two-rounded-bold-duotone.svg?color=%230070f3" width="28" height="28" align="center" /> 2. Phân Định Vai Trò Phát Triển (Human-AI Collaboration)
 
 Dự án này tuân thủ nguyên tắc thiết kế hệ thống nghiêm ngặt:
 * **Thiết kế Hệ thống & Kiến trúc (100% Con Người)**: Toàn bộ cấu trúc giao tiếp không dùng REST API (kết hợp **tRPC**, **gRPC**, **Redis Queue**, **SSE**), sơ đồ thực thể cơ sở dữ liệu (PostgreSQL Schema), giải pháp Docker Warm Pool & RAMDisk đều được lên ý tưởng và thiết kế hoàn toàn bởi kỹ sư con người.
@@ -22,7 +22,7 @@ Dự án này tuân thủ nguyên tắc thiết kế hệ thống nghiêm ngặt
 
 ---
 
-## <img src="https://images.weserv.nl/?url=https://api.iconify.design/solar/structure-bold-duotone.svg?color=%25230070f3&output=png&w=28&h=28" width="28" height="28" align="center" /> 3. Sơ đồ Kiến trúc & Luồng Dữ liệu (Workflow)
+## <img src="https://api.iconify.design/solar/structure-bold-duotone.svg?color=%230070f3" width="28" height="28" align="center" /> 3. Sơ đồ Kiến trúc & Luồng Dữ liệu (Workflow)
 
 ```mermaid
 sequenceDiagram
@@ -63,7 +63,7 @@ sequenceDiagram
 
 ---
 
-## <img src="https://images.weserv.nl/?url=https://api.iconify.design/solar/cpu-bold-duotone.svg?color=%25230070f3&output=png&w=28&h=28" width="28" height="28" align="center" /> 4. Công Nghệ Sử Dụng (Tech Stack)
+## <img src="https://api.iconify.design/solar/cpu-bold-duotone.svg?color=%230070f3" width="28" height="28" align="center" /> 4. Công Nghệ Sử Dụng (Tech Stack)
 
 ### Frontend Layer (`apps/web`)
 * **Next.js 16** (App Router) giao tiếp tRPC Client.
@@ -82,7 +82,7 @@ sequenceDiagram
 
 ---
 
-## <img src="https://images.weserv.nl/?url=https://api.iconify.design/solar/folder-open-bold-duotone.svg?color=%25230070f3&output=png&w=28&h=28" width="28" height="28" align="center" /> 5. Cấu Trúc Monorepo (`truesubmit`)
+## <img src="https://api.iconify.design/solar/folder-open-bold-duotone.svg?color=%230070f3" width="28" height="28" align="center" /> 5. Cấu Trúc Monorepo (`truesubmit`)
 
 ```text
 truesubmit/
@@ -100,6 +100,6 @@ truesubmit/
 
 ---
 
-## <img src="https://images.weserv.nl/?url=https://api.iconify.design/solar/play-bold-duotone.svg?color=%25230070f3&output=png&w=28&h=28" width="28" height="28" align="center" /> 6. Hướng Dẫn Khởi Chạy Nhanh (Quick Start)
+## <img src="https://api.iconify.design/solar/play-bold-duotone.svg?color=%230070f3" width="28" height="28" align="center" /> 6. Hướng Dẫn Khởi Chạy Nhanh (Quick Start)
 
 Quy trình chuẩn bị cơ sở dữ liệu, chạy Drizzle Kit migration và khởi động toàn bộ ứng dụng được trình bày chi tiết trong tài liệu tổng quan tại **[Tài liệu hướng dẫn tổng quan (overview.md)](file:///v:/Hybrid/truesubmit/docs/overview.md)**.

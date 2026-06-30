@@ -17,7 +17,7 @@ sequenceDiagram
     participant Redis as Redis Queue
     participant Worker as Golang Worker (Chấm bài)
     participant Sandbox as Docker Sandbox (RAMDisk)
-    database DB as PostgreSQL (Drizzle)
+    participant DB as PostgreSQL (Drizzle)
 
     SinhVien->>Web: Nhập code & nhấn "Nộp bài"
     Web->>API: 1. Gửi bài nộp qua tRPC Mutation (Không URL)
