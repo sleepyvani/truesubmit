@@ -21,20 +21,54 @@ Hệ thống API Backend của **TrueSubmit** được phát triển trên nền
 ```text
 apps/api/
 ├── src/
-│   ├── main.ts              # Khởi chạy NestJS (Kích hoạt HTTP tRPC, SSE, và gRPC Microservice)
-│   ├── app.module.ts        # Module gốc kết nối DB, Redis, và các sub-modules
-│   ├── database/            # Drizzle Connection & Bảng cơ sở dữ liệu
-│   │   ├── schema.ts        # Định nghĩa các bảng Database
-│   │   └── database.module.ts
-│   ├── trpc/                # Các routers định nghĩa API tRPC cho frontend Next.js
-│   ├── grpc/                # gRPC Service nhận kết quả chấm bài từ Go Worker
-│   │   ├── submission.proto # Khai báo protobuf interface
-│   │   └── submission.service.ts
-│   ├── auth/                # Xử lý Đăng nhập, Đăng ký, Phân quyền
-│   ├── problems/            # Quản lý đề bài, testcase (CRUD)
-│   ├── submissions/         # Tiếp nhận bài nộp, đẩy vào Redis Queue
-│   └── queue/               # Cấu hình giao tiếp hàng đợi Redis
-└── drizzle.config.ts        # Cấu hình Drizzle Kit
+│   ├── main.ts                   # Điểm khởi chạy NestJS (Kích hoạt HTTP tRPC, SSE, và gRPC Microservice)
+│   ├── app.module.ts             # Module gốc kết nối cơ sở dữ liệu, Redis, Auth và các sub-modules
+│   │
+│   ├── database/                 # Drizzle Connection & Bảng cơ sở dữ liệu
+│   │   ├── schemas/              # Thiết kế schema dạng mô-đun hóa, chia nhỏ theo thực thể
+│   │   │   ├── index.ts          # Re-export tất cả schema để import tập trung
+│   │   │   ├── users.schema.ts   # Bảng người dùng (Admin & Student)
+│   │   │   ├── problems.schema.ts # Bảng danh sách đề bài
+│   │   │   ├── submissions.schema.ts # Bảng lưu trữ mã nguồn bài giải
+│   │   │   ├── submission-results.schema.ts # Bảng chi tiết kết quả chấm bài
+│   │   │   └── system-settings.schema.ts # Bảng cấu hình tham số hệ thống chạy sandbox
+│   │   ├── database.provider.ts  # Nhà cung cấp kết nối PostgreSQL pool
+│   │   ├── database.module.ts    # Module đóng gói database provider
+│   │   └── migrations/           # Thư mục chứa các file SQL do Drizzle Kit sinh ra
+│   │
+│   ├── trpc/                     # Cổng tRPC API dành cho Frontend (Next.js)
+│   │   ├── trpc.module.ts        # Module khởi tạo context và tích hợp tRPC vào NestJS
+│   │   ├── trpc.router.ts        # Root Router kết hợp các sub-routers lại với nhau
+│   │   ├── context.ts            # Tạo context cho mỗi request (chứa db, redis, user auth)
+│   │   └── routers/              # Chứa các sub-routers nghiệp vụ
+│   │       ├── auth.router.ts    # Đăng ký, đăng nhập
+│   │       ├── problem.router.ts # Lấy thông tin đề bài
+│   │       └── submission.router.ts # Gửi code bài giải
+│   │
+│   ├── grpc/                     # Cổng gRPC Microservice dành cho Worker (Golang)
+│   │   ├── grpc.module.ts        # Module khởi tạo gRPC server
+│   │   ├── submission.proto      # File hợp đồng Protobuf định nghĩa dịch vụ chấm điểm
+│   │   └── submission.controller.ts # Controller nhận RPC `ReportResult` và cập nhật dữ liệu
+│   │
+│   ├── submissions/              # Module quản lý Bài nộp & luồng stream kết quả
+│   │   ├── submissions.module.ts
+│   │   ├── submissions.service.ts   # Xử lý logic và đẩy tin nhắn vào Redis Queue
+│   │   └── submissions.controller.ts # Endpoint HTTP GET phục vụ luồng SSE đẩy điểm realtime
+│   │
+│   ├── problems/                 # Module quản lý đề thi và giới hạn tài nguyên
+│   │   ├── problems.module.ts
+│   │   └── problems.service.ts   # CRUD đề thi, testcase và giới hạn sandbox
+│   │
+│   ├── auth/                     # Module bảo mật và phân quyền người dùng
+│   │   ├── auth.module.ts
+│   │   ├── auth.service.ts       # Hash mật khẩu, sinh mã JWT token
+│   │   └── jwt.strategy.ts       # Passport Strategy kiểm tra tính hợp lệ của token
+│   │
+│   └── queue/                    # Module tích hợp Redis
+│       ├── queue.module.ts
+│       └── queue.service.ts      # Client IoRedis quản lý kết nối và đẩy job (LPUSH)
+│
+└── drizzle.config.ts             # File cấu hình sinh migration của Drizzle Kit
 ```
 
 ---
