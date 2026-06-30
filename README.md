@@ -110,7 +110,8 @@ truesubmit/
 │   ├── api/                 # Chi tiết thiết kế Backend API
 │   ├── web/                 # Chi tiết thiết kế Frontend Web
 │   ├── worker/              # Chi tiết thiết kế Sandbox & Worker
-│   └── overview.md          # Tài liệu tổng quan kiến trúc hệ thống
+│   ├── overview.md          # Tài liệu tổng quan kiến trúc hệ thống
+│   └── team-workflow.md     # Quy trình làm việc nhóm (Git & AI)
 └── package.json             # Cấu hình workspace Monorepo npm
 ```
 
