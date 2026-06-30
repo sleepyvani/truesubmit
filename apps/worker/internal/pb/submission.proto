@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package submission;
+option go_package = "truesubmit/worker/internal/pb";
+
+service SubmissionService {
+  rpc ReportResult (ReportResultRequest) returns (ReportResultResponse);
+}
+
+message ReportResultRequest {
+  string submissionId = 1;
+  string status = 2; // AC, WA, TLE, MLE, RE, CE
+  int64 timeTakenMs = 3;
+  string errorLog = 4;
+  string token = 5; // Internal auth token
+}
+
+message ReportResultResponse {
+  bool success = 1;
+  string message = 2;
+}
