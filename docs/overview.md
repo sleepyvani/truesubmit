@@ -12,12 +12,12 @@ TrueSubmit là hệ thống chấm bài trực tuyến (Online Judge) hiệu nă
 sequenceDiagram
     autonumber
     actor SinhVien as Sinh viên
-    participant Web as Next.js Web (Frontend)
-    participant API as NestJS API (Gateway)
+    participant Web as "Next.js Web (Frontend)"
+    participant API as "NestJS API (Gateway)"
     participant Redis as Redis Queue
-    participant Worker as Golang Worker (Chấm bài)
-    participant Sandbox as Docker Sandbox (RAMDisk)
-    participant DB as PostgreSQL (Drizzle)
+    participant Worker as "Golang Worker (Chấm bài)"
+    participant Sandbox as "Docker Sandbox (RAMDisk)"
+    participant DB as "PostgreSQL (Drizzle)"
 
     SinhVien->>Web: Nhập code & nhấn "Nộp bài"
     Web->>API: 1. Gửi bài nộp qua tRPC Mutation (Không URL)

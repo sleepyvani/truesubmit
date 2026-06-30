@@ -4,6 +4,22 @@
 
 ---
 
+### **Hạ tầng & Hệ thống (System Tech Stack)**
+<p align="left">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=nextjs,nestjs,go,trpc,docker,postgres,redis,ts,tailwind,pnpm,nodejs" />
+  </a>
+</p>
+
+### **Ngôn ngữ hỗ trợ chấm (Supported Languages)**
+<p align="left">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=c,cpp,cs,java,py,go" />
+  </a>
+</p>
+
+---
+
 ## <img src="https://api.iconify.design/solar/target-bold-duotone.svg?color=%230070f3" width="28" height="28" align="center" /> 1. Mục Tiêu Dự Án & Chỉ Số Hiệu Năng
 
 Hệ thống được thiết kế để giải quyết triệt để bài toán **1000 sinh viên nộp bài đồng thời trong cùng 1 giờ thi** dưới các ràng buộc kỹ thuật khắt khe:
@@ -28,12 +44,12 @@ Dự án này tuân thủ nguyên tắc thiết kế hệ thống nghiêm ngặt
 sequenceDiagram
     autonumber
     actor SinhVien as Sinh viên
-    participant Web as Next.js Web (Frontend)
-    participant API as NestJS API (Gateway)
+    participant Web as "Next.js Web (Frontend)"
+    participant API as "NestJS API (Gateway)"
     participant Redis as Redis Queue
-    participant Worker as Golang Worker (Chấm bài)
-    participant Sandbox as Docker Sandbox (RAMDisk)
-    database DB as PostgreSQL (Drizzle)
+    participant Worker as "Golang Worker (Chấm bài)"
+    participant Sandbox as "Docker Sandbox (RAMDisk)"
+    participant DB as "PostgreSQL (Drizzle)"
 
     SinhVien->>Web: Nhập code & nhấn "Nộp bài"
     Web->>API: 1. Gửi bài nộp qua tRPC Mutation (Không URL)
