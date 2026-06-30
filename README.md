@@ -118,4 +118,4 @@ truesubmit/
 
 ## <img src="https://api.iconify.design/solar/play-bold-duotone.svg?color=%230070f3" width="28" height="28" align="center" /> 6. Hướng Dẫn Khởi Chạy Nhanh (Quick Start)
 
-Quy trình chuẩn bị cơ sở dữ liệu, chạy Drizzle Kit migration và khởi động toàn bộ ứng dụng được trình bày chi tiết trong tài liệu tổng quan tại **[Tài liệu hướng dẫn tổng quan (overview.md)](file:///v:/Hybrid/truesubmit/docs/overview.md)**.
+Quy trình cài đặt môi trường tiền đề (NodeJS, Go, Docker, Redis, Postgres), chạy migrations và khởi chạy từng ứng dụng được trình bày chi tiết tại **[Hướng Dẫn Cài Đặt Chi Tiết (installation.md)](file:///v:/Hybrid/truesubmit/docs/installation.md)**.
