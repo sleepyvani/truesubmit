@@ -7,7 +7,7 @@
 ### **Hạ tầng & Hệ thống (System Tech Stack)**
 <p align="left">
   <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=nextjs,nestjs,go,trpc,docker,postgres,redis,ts,tailwind,pnpm,nodejs" />
+    <img src="https://skillicons.dev/icons?i=nextjs,nestjs,go,docker,postgres,redis,ts,tailwind,pnpm,nodejs" />
   </a>
 </p>
 
