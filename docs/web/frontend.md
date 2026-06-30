@@ -9,8 +9,8 @@ Hệ thống giao diện người dùng (Frontend) của **TrueSubmit** được
 - **Styling**: TailwindCSS
 - **UI Components**: Shadcn/UI (Radix UI)
 - **Trình soạn thảo**: Monaco Editor (`@monaco-editor/react`)
+- **Quản lý State & Gọi API**: tRPC Client (kết nối Type-safe không cần định nghĩa URL với NestJS)
 - **Giao tiếp Real-time**: Server-Sent Events (SSE) (API EventSource có sẵn của trình duyệt)
-- **Quản lý State & Fetching**: Axios / TanStack Query (React Query)
 
 ---
 
@@ -31,7 +31,7 @@ apps/web/
 │   ├── ui/                # Nguyên tử UI từ Shadcn (Button, Dialog, Card...)
 │   └── shared/            # Layout components (Navbar, Sidebar)
 ├── hooks/                 # Custom React hooks (useSSE, useAuth)
-├── lib/                   # Cấu hình API Client, các hàm helper
+├── lib/                   # Khởi tạo tRPC client và các helper
 └── public/                # Static assets (images, icons)
 ```
 
@@ -60,7 +60,7 @@ apps/web/
 
 ### 2. Truyền nhận kết quả Real-time thay vì Client-side Polling
 - **Vấn đề**: Việc 1000 sinh viên cùng nộp bài và client liên tục gửi request HTTP GET mỗi 2 giây để check trạng thái chấm bài (Polling) sẽ tạo ra **500 - 1000 request/giây**, gây nghẽn NestJS API.
-- **Giải pháp**: Tích hợp **Server-Sent Events (SSE)**. Khi sinh viên bấm "Nộp bài", Next.js gửi 1 request HTTP POST để lưu job và nhận về `submissionId`. Sau đó, client khởi tạo một kết nối `EventSource` lắng nghe luồng sự kiện từ API (ví dụ: `/api/submissions/:id/sse`). Khi Golang Worker chấm xong, Backend NestJS sẽ phát tín hiệu qua luồng stream này để client cập nhật UI ngay lập tức, sau đó tự động đóng kết nối.
+- **Giải pháp**: Tích hợp **Server-Sent Events (SSE)**. Khi sinh viên bấm "Nộp bài", Next.js gọi một tRPC mutation (`trpc.submissions.submit.useMutation()`) để gửi code lên. API sẽ lưu job và trả về `submissionId`. Sau đó, client khởi tạo một kết nối `EventSource` lắng nghe luồng sự kiện từ API (ví dụ: `/api/submissions/:id/sse`). Khi Golang Worker chấm xong (gửi kết quả về NestJS qua gRPC), NestJS sẽ phát tín hiệu qua luồng stream SSE này để client cập nhật UI ngay lập tức và tự động đóng kết nối.
 
 ### 3. Tối ưu dung lượng tải trang (Bundle Size)
 - Trình soạn thảo Monaco Editor rất nặng. Cần thực hiện **Dynamic Import** (Lazy Loading) cho component Code Editor để giảm thiểu thời gian tải trang ban đầu của sinh viên.
@@ -73,6 +73,6 @@ Tạo file `.env` ở thư mục gốc của `apps/web` dựa trên file `.env.e
 
 | Biến môi trường | Ý nghĩa | Giá trị mẫu |
 | :--- | :--- | :--- |
-| `APP_BACKEND_URL` | Địa chỉ URL của API Gateway (NestJS) (Dùng chung cho cả REST API và SSE) | `http://localhost:3001` |
+| `APP_BACKEND_URL` | Địa chỉ URL của API Gateway (NestJS) (Chạy cổng tRPC HTTP và SSE) | `http://localhost:3001` |
 
 
