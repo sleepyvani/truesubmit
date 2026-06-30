@@ -28,13 +28,13 @@ apps/worker/
 ### Luồng xử lý chi tiết của 1 Job chấm bài:
 1. **Lắng nghe**: Worker sử dụng lệnh chặn `BRPOP` hoặc đọc từ `Redis Streams` để lấy thông tin bài nộp ngay khi API đẩy vào.
 2. **Khởi tạo Sandbox**: Worker yêu cầu Docker SDK tạo một container dựa trên Docker Image của ngôn ngữ tương ứng (ví dụ: gcc-image cho C/C++, python-image cho Python).
-3. **Ghi code**: Ghi mã nguồn từ DB vào thư mục tạm được mount bên trong container.
+3. **Ghi code**: Ghi mã nguồn nhận từ payload của Job (được NestJS gửi qua hàng đợi) vào thư mục tạm được mount bên trong container.
 4. **Biên dịch & Thực thi (Compile & Run)**:
    - Chạy lệnh biên dịch (nếu có, ví dụ: `g++ -O3 main.cpp -o main`).
    - Chạy file nhị phân hoặc thông dịch mã nguồn kèm theo các file input của testcase.
    - Giám sát thời gian chạy (Time Limit) và bộ nhớ tiêu thụ (Memory Limit).
 5. **So sánh (Judge)**: Đọc đầu ra chuẩn (`stdout`) của code sinh viên và so sánh từng byte với kết quả kỳ vọng (`expected output`).
-6. **Trả kết quả**: Lưu kết quả chấm (AC/WA/TLE/MLE) trực tiếp vào bảng `submission_results` trong PostgreSQL và cập nhật trạng thái của `submissions`.
+6. **Trả kết quả**: Gửi request `PATCH` đến API nội bộ (`/api/internal/submissions/:id/result`) kèm theo kết quả chấm chi tiết (AC/WA/TLE/MLE, CPU/RAM tiêu thụ) và xác thực bằng `APP_INTERNAL_AUTH_TOKEN`. API Gateway NestJS sẽ chịu trách nhiệm ghi DB và thông báo realtime cho client qua SSE.
 
 ---
 
@@ -79,8 +79,9 @@ Tạo file `.env` ở thư mục gốc của `apps/worker` dựa trên file `.en
 
 | Biến môi trường | Ý nghĩa | Giá trị mẫu |
 | :--- | :--- | :--- |
-| `APP_DATABASE_URI_VALUE` | Chuỗi kết nối DB PostgreSQL để lưu kết quả chấm bài | `postgresql://postgres:password@localhost:5432/truesubmit?schema=public` |
-| `APP_REDIS_CONN_STRING` | Chuỗi kết nối Redis (giao thức `redis://`) | `redis://127.0.0.1:6379` |
+| `APP_REDIS_CONN_STRING` | Chuỗi kết nối Redis để lấy Job nộp bài (giao thức `redis://`) | `redis://127.0.0.1:6379` |
+| `APP_BACKEND_URL` | Địa chỉ URL của API Gateway NestJS để thông báo kết quả | `http://localhost:3001` |
+| `APP_INTERNAL_AUTH_TOKEN` | Token xác thực nội bộ để gọi API của Gateway một cách an toàn | `secure_internal_token_for_communication` |
 | `SANDBOX_MAX_CONCURRENT`| Giới hạn số lượng sandbox chạy song song tối đa (phụ thuộc năng lực máy chủ Worker) | `8` |
 
 ### 📝 Các cấu hình được Code cứng hoặc truyền Động:
