@@ -30,17 +30,29 @@ Tài liệu này định nghĩa cấu trúc phân chia các file schema trong **
 * **Bảng `plagiarism_reports`**: Kết quả quét đạo văn (sử dụng thuật toán so khớp mã nguồn như MOSS để so sánh độ tương đồng code giữa các bài nộp sau khi cuộc thi kết thúc).
 
 ### 4. File `submissions.schema.ts` (Quản lý Bài nộp & Nhật ký làm bài)
-* **Bảng `submissions`**: Thông tin bài nộp (mã nguồn, dung lượng file, ngôn ngữ, thời gian nộp, tổng điểm đạt được).
+* **Bảng `submissions`**: Thông tin bài nộp (mã nguồn, ngôn ngữ, thời gian nộp, tổng điểm đạt được).
 * **Bảng `submission_results`**: Trạng thái chi tiết của từng testcase trong bài nộp (AC/WA/TLE/MLE, thời gian chạy thực tế, RAM tiêu thụ thực tế).
-* **Bảng `submission_drafts`**: **Lưu nháp tự động** mã nguồn của người dùng cứ sau mỗi 30 giây khi đang làm bài. Đảm bảo nếu người dùng bị sập nguồn máy tính hoặc mất điện mạng, code làm dở vẫn được bảo toàn khi đăng nhập lại.
+* **Bảng `submission_drafts`**: **Lưu nháp tự động** mã nguồn của người dùng cứ sau mỗi 30 giây khi đang làm bài.
 
-### 5. File `extensions.schema.ts` (Cấu hình Tích hợp bên ngoài) *(Mới)*
-* **Bảng `extensions`**: Quản lý danh sách các dịch vụ/tính năng tích hợp mở rộng bên ngoài (ví dụ: xác thực LDAP/Active Directory, lưu trữ file S3/MinIO cho testcase/source code, webhooks thông báo tới Discord/Slack, kết nối hệ thống chấm đạo văn MOSS).
-* **Bảng `extension_configs`**: Lưu cấu hình động của từng extension dưới dạng cặp key-value hoặc định dạng JSON tùy biến (cho phép bật/tắt hoặc cập nhật cấu hình mà không cần khởi động lại hệ thống).
+### 5. File `cms.schema.ts` (Hệ thống Quản trị Nội dung - CMS & Media) *(Mới)*
+* **Bảng `cms_pages`**: Các trang nội dung tĩnh/động do quản trị biên soạn (Ví dụ: Trang điều khoản sử dụng, hướng dẫn sử dụng, giới hạn hệ thống, trang giới thiệu).
+* **Bảng `menus`**: Cấu hình danh mục điều hướng (quản lý liên kết động và vị trí hiển thị của menu trên Header, Footer, Sidebar).
+* **Bảng `gallery`**: Thư viện phương tiện (Lưu trữ thông tin ảnh, tệp đính kèm do người ra đề upload để nhúng vào đề bài hoặc lời giải).
 
-### 6. File `monitoring.schema.ts` (Giám sát Hệ thống Chấm bài)
-* **Bảng `worker_nodes`**: Đăng ký và giám sát các Go Worker đang hoạt động (Địa chỉ IP, tình trạng Healthcheck, số sandbox đang chạy đồng thời, phiên bản Docker đang chạy). Giúp Admin biết cụm Worker có đang hoạt động tốt hay không.
-* **Bảng `activity_logs`**: Nhật ký hoạt động của hệ thống (lịch sử đăng nhập, thay đổi cấu hình, thay đổi quyền hạn).
+### 6. File `notifications.schema.ts` (Quản lý Thông báo người dùng) *(Mới)*
+* **Bảng `notifications`**: Lưu các thông tin thông báo (thông báo hệ thống, thông báo bắt đầu kỳ thi, thông báo kết quả chấm bài).
+* **Bảng `user_notifications`**: Bảng theo dõi trạng thái đọc/chưa đọc thông báo của từng người dùng cụ thể.
 
-### 7. File `settings.schema.ts` (Cấu hình Hệ thống)
+### 7. File `security.schema.ts` (Chặn Truy cập & An ninh Hệ thống) *(Mới)*
+* **Bảng `access_denies`**: Danh sách đen (Blacklist) chặn truy cập (chặn các địa chỉ IP spam request, chặn email đăng ký rác, hoặc thiết lập danh sách IP bị cấm tham dự phòng thi).
+
+### 8. File `extensions.schema.ts` (Cấu hình Tích hợp bên ngoài)
+* **Bảng `extensions`**: Quản lý danh sách các dịch vụ tích hợp mở rộng bên ngoài (LDAP/Active Directory, S3/MinIO Storage, Discord/Slack Webhooks, MOSS).
+* **Bảng `extension_configs`**: Lưu cấu hình động của từng extension dưới dạng JSON.
+
+### 9. File `monitoring.schema.ts` (Giám sát Hệ thống Chấm bài)
+* **Bảng `worker_nodes`**: Đăng ký và giám sát các Go Worker đang hoạt động (Địa chỉ IP, tình trạng Healthcheck, số sandbox đang chạy đồng thời).
+* **Bảng `activity_logs`**: Nhật ký hoạt động (lịch sử đăng nhập, thay đổi cấu hình, thay đổi quyền hạn).
+
+### 10. File `settings.schema.ts` (Cấu hình Hệ thống)
 * **Bảng `system_settings`**: Quản lý cấu hình toàn cục (Giới hạn sandbox mặc định, danh sách các đuôi file ngôn ngữ được phép nộp, cấu hình bật/tắt toàn bộ server).
