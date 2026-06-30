@@ -2,6 +2,12 @@
 
 **TrueSubmit** là hệ thống Online Judge nội bộ dành cho sinh viên, cung cấp môi trường rèn luyện thuật toán, chấm bài tự động với kiến trúc hiện đại, an toàn và hiệu năng cao.
 
+## 🎯 Mục tiêu & Yêu cầu hiệu năng
+
+Hệ thống được thiết kế nhằm giải quyết bài toán thực tế khi **có 1000 sinh viên cùng chấm bài đồng thời trong 1 giờ thi cao điểm**, đảm bảo các tiêu chí cốt lõi:
+- ⚡ **Tốc độ biên dịch (Compile) cực nhanh**: Tối ưu hóa thời gian khởi tạo sandbox để biên dịch code của sinh viên ngay lập tức.
+- 🔄 **Tốc độ phản hồi (Response) tức thời**: Phản hồi kết quả chấm bài gần như ngay lập tức (real-time feedback) nhờ hệ thống hàng đợi phân tán hoạt động hiệu quả.
+
 ---
 
 ## 🏗️ Kiến trúc Hệ thống (Monorepo)
@@ -26,7 +32,7 @@ graph TD
 ### 💻 Frontend & API (Web Layer)
 - **Framework**: Next.js 16.2 (App Router)
 - **Backend API**: NestJS (TypeScript)
-- **Database**: PostgreSQL kết hợp Prisma ORM
+- **Database**: PostgreSQL kết hợp Drizzle ORM
 - **UI**: TailwindCSS & Shadcn/UI
 
 ### ⚙️ Execution Engine (Worker Layer)
