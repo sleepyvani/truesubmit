@@ -75,4 +75,22 @@ Tạo file `.env` ở thư mục gốc của `apps/web` dựa trên file `.env.e
 | :--- | :--- | :--- |
 | `APP_BACKEND_URL` | Địa chỉ URL của API Gateway (NestJS) (Chạy cổng tRPC HTTP và SSE) | `http://localhost:3001` |
 
+---
+
+## 🛠️ Tính năng Configuration Wizard (Khởi tạo hệ thống)
+
+Nhằm tối ưu quy trình cài đặt ban đầu (đối với môi trường mới hoặc khi chưa cấu hình cơ sở dữ liệu), hệ thống tích hợp luồng **Configuration Wizard** để hướng dẫn quản trị viên cấu hình:
+
+### 1. Luồng chuyển hướng (Redirect Flow)
+- **Next.js Proxy (`apps/web/src/proxy.ts`)**:
+  - Proxy (chức năng hoàn toàn tương đương với Middleware truyền thống) lắng nghe tất cả các request chuyển trang (trừ tài nguyên tĩnh, các API nội bộ và chính các trang con của `/configuration`).
+  - Gửi request kiểm tra trạng thái khởi tạo từ Backend (trạng thái này được cache lại hoặc lưu cookie để tối ưu hiệu năng).
+  - Nếu Backend phản hồi chưa cấu hình (`isInitialized = false`), tự động chuyển hướng (`redirect`) sang `/configuration`.
+
+### 2. Trang cài đặt (`apps/web/src/app/configuration/page.tsx`)
+- Giao diện thiết lập đa bước (Multi-step Configuration Wizard):
+  - **Bước 1: Cấu hình Kết nối**: Nhập thông số kết nối Database PostgreSQL và Redis.
+  - **Bước 2: Khởi tạo dữ liệu**: Thực thi migrate DB schemas và chèn dữ liệu mẫu/mặc định.
+  - **Bước 3: Tạo Tài khoản Admin**: Đăng ký tài khoản Root Admin đầu tiên để quản lý toàn bộ trang web.
+
 

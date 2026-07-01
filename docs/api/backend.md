@@ -59,17 +59,19 @@ apps/api/
 │   │   ├── submission.proto      # File hợp đồng Protobuf định nghĩa dịch vụ chấm điểm
 │   │   └── submission.controller.ts # Controller nhận RPC `ReportResult` và cập nhật dữ liệu
 │   │
-│   ├── modules/                  # Các module nghiệp vụ phụ trợ (không qua tRPC, ví dụ: SSE)
-│   │   ├── submissions/          # Quản lý luồng stream kết quả SSE
+│   ├── modules/                  # Các module nghiệp vụ
+│   │   ├── submissions/          # Quản lý bài nộp
 │   │   │   ├── submissions.module.ts
 │   │   │   ├── submissions.controller.ts # Chứa endpoint HTTP GET phục vụ luồng SSE đẩy điểm realtime
-│   │   │   └── submissions.service.ts
+│   │   │   ├── submissions.service.ts    # Xử lý nghiệp vụ chính (gửi hàng đợi, phân phối kết quả)
+│   │   │   └── submissions.repository.ts # [Repository Pattern] Chứa các truy vấn Drizzle đọc/ghi bảng submissions
 │   │   ├── queue/                # Tích hợp Redis Queue kết nối tới Golang Worker
 │   │   │   ├── queue.module.ts
 │   │   │   └── queue.service.ts  # Quản lý kết nối Redis & chứa hàm LPUSH job nộp bài
 │   │   └── auth/                 # Chứa JWT Strategy và logic hash mật khẩu dùng chung
 │   │       ├── auth.module.ts
 │   │       ├── auth.service.ts
+│   │       ├── auth.repository.ts   # [Repository Pattern] Thao tác DB trực tiếp của module Auth (bảng users)
 │   │       └── strategies/
 │   │           └── jwt.strategy.ts
 │   │
@@ -88,6 +90,48 @@ apps/api/
 
 Chi tiết thiết kế cơ sở dữ liệu đã được tách riêng ra tài liệu: **[Database Schema Documentation](./database.md)**.
 Vui lòng tham khảo file liên kết ở trên để xem chi tiết danh sách các file schema và các bảng tương ứng chứa bên trong.
+
+---
+
+## 🗃️ Tầng Repository (Giao tiếp Database)
+
+Để tách biệt hoàn toàn giữa Logic nghiệp vụ (Business Logic) và tầng dữ liệu, TrueSubmit áp dụng **Repository Pattern** kết hợp với Drizzle ORM:
+
+### 1. Nguyên tắc hoạt động
+- **Không viết Drizzle queries trực tiếp trong Service**: Các file `.service.ts` chỉ chứa luồng nghiệp vụ thuần túy (gửi queue, gọi các module khác, validate logic). Mọi thao tác truy vấn cơ sở dữ liệu (`db.select()`, `db.insert()`, `db.update()`, `db.delete()`) bắt buộc phải được đóng gói gọn gàng bên trong các file `.repository.ts` tương ứng.
+- **Dependency Injection**: Lớp Repository sẽ tiêm (Inject) token `POSTGRES_DB` từ `DatabaseModule`. Sau đó, Service sẽ tiêm Repository này để gọi hàm.
+
+### 2. Ví dụ chuẩn triển khai một Repository (`problems.repository.ts`)
+```typescript
+import { Injectable, Inject } from '@nestjs/common';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { POSTGRES_DB } from '@/database/database.provider';
+import * as schemas from '@/database/schemas';
+import { eq } from 'drizzle-orm';
+
+@Injectable()
+export class ProblemsRepository {
+  constructor(
+    @Inject(POSTGRES_DB) private readonly db: NodePgDatabase<typeof schemas>
+  ) {}
+
+  async findById(id: string) {
+    return this.db
+      .select()
+      .from(schemas.problems)
+      .where(eq(schemas.problems.id, id))
+      .limit(1)
+      .then((res) => res[0] || null);
+  }
+
+  async create(data: typeof schemas.problems.$inferInsert) {
+    return this.db
+      .insert(schemas.problems)
+      .values(data)
+      .returning();
+  }
+}
+```
 
 ---
 
@@ -140,3 +184,23 @@ Tạo file `.env` ở thư mục gốc của `apps/api` dựa trên file `.env.e
 - **Tên hàng đợi (`SUBMISSION_QUEUE_NAME`)**: Code cứng trực tiếp chuỗi `"truesubmit_queue"` dùng chung cho cả NestJS và Golang Worker.
 - **Thời gian hết hạn JWT (`JWT_EXPIRES_IN`)**: Cố định `"7d"`.
 - **Khóa bảo mật JWT (`JWT_SECRET`)**: Sử dụng cơ chế fallback an toàn: `process.env.JWT_SECRET || 'fallback-secret-for-dev'`.
+
+---
+
+## 🛠️ Tính năng Configuration Wizard (Khởi tạo hệ thống)
+
+Phía Backend hỗ trợ cơ chế kiểm tra trạng thái khởi tạo và bảo vệ các API nghiệp vụ khác:
+
+### 1. Tổ chức Module (`src/modules/configuration/`)
+- **ConfigurationModule**: Đóng gói logic liên quan đến thiết lập ban đầu.
+  - `ConfigurationService`: Kiểm tra trạng thái cài đặt hệ thống (ví dụ: quét xem có tài khoản Admin nào tồn tại trong database chưa, hoặc kiểm tra cờ trạng thái trong cấu hình).
+  - `ConfigurationController` / `ConfigurationRouter`: Cung cấp các API:
+    - `GET /configuration/status`: Lấy trạng thái cài đặt (`{ isInitialized: boolean }`).
+    - `POST /configuration/initialize`: Tiếp nhận thông số cấu hình và thông tin tài khoản root admin, thực thi migrate database và tạo tài khoản.
+
+### 2. Guard bảo vệ toàn cục (`SystemInitializedGuard`)
+- Vị trí: `src/shared/guards/system-initialized.guard.ts` (hoặc `src/modules/configuration/guards/`).
+- Nguyên lý hoạt động:
+  - Cho phép bỏ qua kiểm tra đối với các API thuộc `/configuration/*`.
+  - Đối với tất cả các API khác (tRPC, HTTP, gRPC): Nếu hệ thống chưa hoàn thành cấu hình, Guard sẽ chặn lại và ném ra mã lỗi tùy chỉnh `{ code: 'CONFIGURATION_REQUIRED' }` để yêu cầu Frontend chuyển hướng.
+  - Tận dụng **Redis cache** lưu cờ trạng thái `system_initialized: true` sau khi cấu hình thành công, giúp việc xác thực của Guard diễn ra cực kỳ nhanh (< 1ms) và tránh truy vấn Database liên tục.
