@@ -3,6 +3,8 @@ package sandbox
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -90,8 +92,9 @@ func (dr *DockerRunner) Execute(ctx context.Context, sub Submission) (ExecutionR
 		_, _ = io.Copy(os.Stdout, reader)
 	}
 
-	tempDir, err := os.MkdirTemp("", "truesubmit-run-*")
-	if err != nil {
+	randomName := fmt.Sprintf("truesubmit-%s", generateRandomHex(16))
+	tempDir := filepath.Join(os.TempDir(), randomName)
+	if err := os.MkdirAll(tempDir, 0755); err != nil {
 		return ExecutionResult{}, fmt.Errorf("failed to create temp dir: %w", err)
 	}
 	defer os.RemoveAll(tempDir)
@@ -284,4 +287,12 @@ func (dr *DockerRunner) Execute(ctx context.Context, sub Submission) (ExecutionR
 
 func (dr *DockerRunner) Ping(ctx context.Context) (types.Ping, error) {
 	return dr.cli.Ping(ctx)
+}
+
+func generateRandomHex(n int) string {
+	bytes := make([]byte, n/2)
+	if _, err := rand.Read(bytes); err != nil {
+		return fmt.Sprintf("%016x", time.Now().UnixNano())
+	}
+	return hex.EncodeToString(bytes)
 }
