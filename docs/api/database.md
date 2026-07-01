@@ -3,7 +3,7 @@
 Tài liệu này định nghĩa cấu trúc phân chia các file schema trong **Drizzle ORM** (thư mục `apps/api/src/database/schema/`) và các bảng tương ứng chứa bên trong hệ thống **TrueSubmit** phiên bản Production đầy đủ:
 
 ---
-
+ 
 ### 1. File `users.schema.ts` (Quản lý Người dùng, Vai trò & Phân quyền)
 * **Bảng `users`**: Thông tin tài khoản chính (email, mật khẩu băm, trạng thái tài khoản) liên kết trực tiếp tới mã vai trò `role_id`.
 * **Bảng `user_profiles`**: Hồ sơ chi tiết (Họ tên hiển thị, ảnh đại diện, tổ chức/trường học/công ty, và các thông tin tùy chọn khác như mã số sinh viên, lớp học).
