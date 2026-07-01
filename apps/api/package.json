@@ -30,6 +30,7 @@
     "@repo/constants": "*",
     "@trpc/server": "^11.18.0",
     "drizzle-orm": "^0.45.2",
+    "ioredis": "^5.11.1",
     "pg": "^8.22.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
