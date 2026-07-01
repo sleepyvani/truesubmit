@@ -1,8 +1,9 @@
-import { Controller, Inject } from '@nestjs/common';
+import { Controller, Inject, UseGuards } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { POSTGRES_DB } from '../database/database.provider';
 import * as schemas from '../database/schemas';
+import { GrpcAuthGuard } from '@/shared/guards/grpc-auth.guard';
 
 interface TestcaseResult {
   testcaseId: string;
@@ -26,6 +27,7 @@ interface ResultResponse {
 }
 
 @Controller()
+@UseGuards(GrpcAuthGuard)
 export class SubmissionController {
   constructor(
     @Inject(POSTGRES_DB) private readonly db: NodePgDatabase<typeof schemas>
