@@ -1,3 +1,11 @@
-// Thư mục này dùng để chứa các file Drizzle schema (.schema.ts)
-// Export tất cả các schema để drizzle nhận diện quan hệ (Relations) và kiểu dữ liệu (Types)
-export {};
+export * from './users.schema';
+export * from './problems.schema';
+export * from './contests.schema';
+export * from './submissions.schema';
+export * from './cms.schema';
+export * from './notifications.schema';
+export * from './security.schema';
+export * from './extensions.schema';
+export * from './monitoring.schema';
+export * from './settings.schema';
+export * from './relations';
