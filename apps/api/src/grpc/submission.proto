@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package submission;
+
+service SubmissionService {
+  rpc ReportResult (ResultRequest) returns (ResultResponse);
+}
+
+message ResultRequest {
+  string submissionId = 1;
+  string status = 2;
+  int32 score = 3;
+  int32 totalTestcases = 4;
+  int32 passedTestcases = 5;
+  repeated TestcaseResult testcaseResults = 6;
+}
+
+message TestcaseResult {
+  string testcaseId = 1;
+  string status = 2;
+  int64 timeSpent = 3;
+  int64 memorySpent = 4;
+}
+
+message ResultResponse {
+  bool success = 1;
+  string message = 2;
+}
