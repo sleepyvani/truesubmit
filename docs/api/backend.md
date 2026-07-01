@@ -35,7 +35,8 @@ apps/api/
 │   │   │   ├── security.schema.ts # Chặn Truy cập & An ninh Hệ thống
 │   │   │   ├── extensions.schema.ts # Cấu hình Tích hợp bên ngoài
 │   │   │   ├── monitoring.schema.ts # Giám sát Hệ thống Chấm bài
-│   │   │   └── settings.schema.ts # Cấu hình Hệ thống
+│   │   │   ├── settings.schema.ts # Cấu hình Hệ thống
+│   │   │   └── relations.ts      # Định nghĩa mối quan hệ tập trung giữa các bảng (Relations)
 │   │   ├── database.provider.ts  # Nhà cung cấp kết nối PostgreSQL pool (POSTGRES_DB)
 │   │   ├── database.module.ts    # Module đóng gói database provider toàn cục
 │   │   └── migrations/           # Thư mục chứa các file SQL do Drizzle Kit sinh ra

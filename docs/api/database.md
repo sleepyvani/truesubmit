@@ -56,3 +56,6 @@ Tài liệu này định nghĩa cấu trúc phân chia các file schema trong **
 
 ### 10. File `settings.schema.ts` (Cấu hình Hệ thống)
 * **Bảng `system_settings`**: Quản lý cấu hình toàn cục (Giới hạn sandbox mặc định, danh sách các đuôi file ngôn ngữ được phép nộp, cấu hình bật/tắt toàn bộ server).
+
+### 11. File `relations.ts` (Định nghĩa Mối quan hệ)
+* **Mục đích**: Định nghĩa tập trung tất cả các mối quan hệ (One-to-One, One-to-Many, Many-to-Many) giữa các thực thể (như `users` và `roles`, `contests` và `problems`, `submissions` và `submission_results`). Việc tách biệt quan hệ ra file riêng giúp ngăn ngừa triệt để lỗi vòng lặp phụ thuộc (Circular Import Dependency) trong TypeScript.
