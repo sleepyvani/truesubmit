@@ -43,6 +43,11 @@ Tài liệu này định nghĩa quy chuẩn làm việc bắt buộc dành cho m
 * **Quy tắc 5: Học hỏi liên tục từ AI (Continuous Learning Loop)**
   * Không sử dụng AI như một máy sinh code tự động. Coi AI là một người hướng dẫn chuyên môn cao.
   * Khi AI đề xuất giải pháp tối ưu hơn tư duy thông thường, thành viên phải chủ động hỏi AI giải thích cặn kẽ nguyên lý (ví dụ: tại sao dùng mutex ở đây, tại sao dùng transaction ở kia). Biến tri thức của AI thành tri thức của bản thân.
+* **Quy tắc 6: Kết hợp AI với Graph Knowledge (Knowledge Graph Integration)**
+  * Khi làm việc với AI hỗ trợ lập trình (đặc biệt là các Agent hoặc Copilot nâng cao), **bắt buộc** phải khai thác ngữ cảnh từ Graph Knowledge (Bản đồ tri thức mã nguồn - Code Knowledge Graph) của dự án.
+  * **Hành động bắt buộc**: 
+    1. Sử dụng các công cụ phân tích Graph (như GitNexus MCP, truy vấn Cypher) để tìm hiểu sâu về luồng thực thi (execution flows) và các mối quan hệ phụ thuộc trước khi yêu cầu AI sửa đổi hoặc viết tính năng mới.
+    2. Cung cấp đầy đủ thông tin về các mối liên kết (như CALLS, IMPORTS, EXTENDS, IMPLEMENTS, ACCESSES) cho AI để tránh việc AI đề xuất code bị lạc tông, phá vỡ cấu trúc thiết kế hiện tại hoặc gây ra lỗi liên đới (blast radius) ngoài tầm kiểm soát.
 
 ---
 
