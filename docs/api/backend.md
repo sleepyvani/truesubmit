@@ -9,6 +9,7 @@ Hệ thống API Backend của **TrueSubmit** được phát triển trên nền
 - **Database ORM**: Drizzle ORM + Pg-driver (PostgreSQL)
 - **API Giao tiếp Client**: tRPC Server (Type-safe API cho truy vấn/thao tác) & Server-Sent Events (SSE) (Cho luồng real-time stream kết quả)
 - **API Giao tiếp Worker**: NestJS gRPC Microservice (Chạy trên cổng `50051`, nhận kết quả chấm từ Golang Worker)
+- **Shared Constants Workspace**: Package `@repo/constants` (Dành cho việc chia sẻ enum Roles và Permissions giữa Frontend và Backend)
 - **Cache & Queue Client**: Redis (IoRedis) để lưu hàng đợi chấm bài
 - **Bảo mật & Rate Limit**: `@nestjs/throttler` (Chống spam nộp bài)
 - **Xác thực**: JWT (JSON Web Token) + Passport (RBAC)
@@ -26,10 +27,10 @@ apps/api/
 │   ├── database/                 # Drizzle Connection & Bảng cơ sở dữ liệu
 │   │   ├── schemas/              # Thiết kế schema dạng mô-đun hóa, đồng bộ với database.md
 │   │   │   ├── index.ts          # Re-export tất cả schema để import tập trung
-│   │   │   ├── users.schema.ts   # Quản lý Người dùng, Vai trò & Phân quyền (RBAC)
+│   │   │   ├── users.schema.ts   # Quản lý Người dùng, Vai trò & Phân quyền (Quyền hạn được lưu trực tiếp dạng mảng)
 │   │   │   ├── problems.schema.ts # Quản lý Đề bài & Tài nguyên
 │   │   │   ├── contests.schema.ts # Quản lý Kỳ thi & Giám sát Chống gian lận
-│   │   │   ├── submissions.schema.ts # Quản lý Bài nộp & Nhật ký làm bài
+│   │   │   ├── submissions.schema.ts # Quản lý Bài nộp, kết quả chi tiết & báo cáo đạo văn
 │   │   │   ├── cms.schema.ts      # Hệ thống Quản trị Nội dung - CMS & Media
 │   │   │   ├── notifications.schema.ts # Quản lý Thông báo người dùng
 │   │   │   ├── security.schema.ts # Chặn Truy cập & An ninh Hệ thống
@@ -86,7 +87,7 @@ apps/api/
 ## 🗄️ Database Schema (Drizzle ORM)
 
 Chi tiết thiết kế cơ sở dữ liệu đã được tách riêng ra tài liệu: **[Database Schema Documentation](./database.md)**.
-Vui lòng tham khảo file liên kết ở trên để xem chi tiết danh sách 10 file schema và các bảng tương ứng chứa bên trong.
+Vui lòng tham khảo file liên kết ở trên để xem chi tiết danh sách các file schema và các bảng tương ứng chứa bên trong.
 
 ---
 
@@ -106,11 +107,14 @@ Khi thí sinh bấm "Nộp bài", client gọi tRPC mutation `submission.submit`
 - **Lý do**: Prisma sinh ra một engine Rust chạy ngầm có thể tiêu tốn thêm bộ nhớ RAM và có độ trễ khởi tạo truy vấn (Cold Start/Connection overhead).
 - **Ưu điểm của Drizzle**: Drizzle hoạt động như một query builder thuần túy trên driver PostgreSQL, cho phép thực thi các câu lệnh SQL với tốc độ tối đa của driver nền, giảm thiểu thời gian CPU block của Node.js khi có hàng nghìn truy vấn đồng thời.
 
-### 3. Rate Limiting ở API Layer
+### 3. Tối ưu khóa chính với UUIDv7
+- Toàn bộ các bảng được cấu hình sử dụng **UUIDv7** làm khóa chính (sinh tự động qua Drizzle `$defaultFn`). Các ID này sắp xếp tăng dần theo thời gian (time-ordered), giúp giảm thiểu hiện tượng **Page Split** và phân mảnh trong chỉ mục B-Tree của PostgreSQL, duy trì tốc độ chèn dữ liệu nhanh ổn định kể cả khi database có hàng triệu bản ghi bài nộp.
+
+### 4. Rate Limiting ở API Layer
 - Dùng `@nestjs/throttler` cấu hình giới hạn tần suất nộp bài của mỗi sinh viên (ví dụ: tối đa 1 lần nộp bài mỗi 10 giây). Điều này ngăn ngừa các hành vi viết script nộp bài spam liên tục làm sập queue hoặc cạn kiệt tài nguyên Docker Sandbox của Worker.
 - Tận dụng Redis làm bộ nhớ lưu trữ rate limit để chia sẻ tải tốt hơn.
 
-### 4. gRPC Service nội bộ tiếp nhận kết quả chấm bài (Internal gRPC Service)
+### 5. gRPC Service nội bộ tiếp nhận kết quả chấm bài (Internal gRPC Service)
 - Thiết lập gRPC Service chạy trên cổng mặc định `50051`.
 - Triển khai hàm RPC `ReportResult(ResultRequest) returns (ResultResponse)` định nghĩa trong file Protobuf.
 - Sử dụng Interceptor/Guard để đối sánh khóa bí mật `APP_INTERNAL_AUTH_TOKEN` nằm trong gRPC Metadata nhằm tránh sinh viên tự gửi giả lập kết quả.
