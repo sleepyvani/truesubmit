@@ -15,6 +15,7 @@ import (
 	"truesubmit/worker/internal/sandbox"
 
 	"github.com/joho/godotenv"
+	"github.com/nats-io/nats.go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -26,7 +27,7 @@ func main() {
 		log.Println("Warning: No .env file found, using defaults and OS environment variables")
 	}
 
-	redisConnString := getEnv("APP_REDIS_CONN_STRING", "redis://127.0.0.1:6379")
+	natsURL := getEnv("APP_NATS_URL", "nats://127.0.0.1:4222")
 	backendGrpcUrl := getEnv("APP_BACKEND_GRPC_URL", "127.0.0.1:50051")
 	internalAuthToken := getEnv("APP_INTERNAL_AUTH_TOKEN", "secure_internal_token_for_communication")
 	
@@ -36,8 +37,8 @@ func main() {
 		maxConcurrent = 8
 	}
 
-	log.Printf("Configuration:\n - Redis: %s\n - gRPC Backend: %s\n - Max Concurrent Sandboxes: %d\n", 
-		redisConnString, backendGrpcUrl, maxConcurrent)
+	log.Printf("Configuration:\n - NATS URL: %s\n - gRPC Backend: %s\n - Max Concurrent Sandboxes: %d\n", 
+		natsURL, backendGrpcUrl, maxConcurrent)
 
 	runner, err := sandbox.NewDockerRunner()
 	if err != nil {
@@ -45,12 +46,12 @@ func main() {
 	}
 	log.Println("Docker runner initialized successfully.")
 
-	listener, err := queue.NewQueueListener(redisConnString, "truesubmit_queue")
+	listener, err := queue.NewQueueListener(natsURL, "submissions.created", "TRUESUBMIT", "worker-group")
 	if err != nil {
-		log.Fatalf("Failed to initialize Redis queue listener: %v", err)
+		log.Fatalf("Failed to initialize NATS JetStream queue listener: %v", err)
 	}
 	defer listener.Close()
-	log.Println("Redis queue listener connected.")
+	log.Println("NATS JetStream queue listener connected.")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	conn, err := grpc.DialContext(ctx, backendGrpcUrl, 
@@ -90,12 +91,12 @@ func main() {
 			log.Println("Worker loop terminated. Goodbye!")
 			return
 		default:
-			job, err := listener.PopJob(workerCtx)
+			job, msg, err := listener.PopJob(workerCtx)
 			if err != nil {
 				if workerCtx.Err() != nil {
 					return
 				}
-				log.Printf("Error popping job from Redis: %v. Retrying in 2 seconds...\n", err)
+				log.Printf("Error popping job from NATS JetStream: %v. Retrying in 2 seconds...\n", err)
 				time.Sleep(2 * time.Second)
 				continue
 			}
@@ -107,16 +108,26 @@ func main() {
 			log.Printf("Received Submission #%s (%s)\n", job.SubmissionID, job.Language)
 
 			sem <- struct{}{}
-			go func(payload *queue.JobPayload) {
+			go func(payload *queue.JobPayload, natsMsg *nats.Msg) {
 				defer func() { <-sem }()
-				processSubmission(workerCtx, runner, grpcClient, payload, internalAuthToken)
-			}(job)
+				processSubmission(workerCtx, runner, grpcClient, payload, natsMsg, internalAuthToken)
+			}(job, msg)
 		}
 	}
 }
 
-func processSubmission(ctx context.Context, runner *sandbox.DockerRunner, grpcClient pb.SubmissionServiceClient, job *queue.JobPayload, token string) {
+func processSubmission(ctx context.Context, runner *sandbox.DockerRunner, grpcClient pb.SubmissionServiceClient, job *queue.JobPayload, natsMsg *nats.Msg, token string) {
 	log.Printf("[Sub #%s] Processing starting...\n", job.SubmissionID)
+
+	defer func() {
+		if natsMsg != nil {
+			if err := natsMsg.Ack(); err != nil {
+				log.Printf("[Sub #%s] Failed to Ack message in NATS: %v\n", job.SubmissionID, err)
+			} else {
+				log.Printf("[Sub #%s] Successfully Acked NATS message.\n", job.SubmissionID)
+			}
+		}
+	}()
 
 	var finalStatus string = "AC"
 	var totalTimeTaken time.Duration

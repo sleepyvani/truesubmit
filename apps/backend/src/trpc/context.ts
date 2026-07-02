@@ -1,11 +1,11 @@
-import * as trpcExpress from '@trpc/server/adapters/express';
+import { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
 
 export type Context = Awaited<ReturnType<typeof createContext>>;
 
 export function createContext({
   req,
   res,
-}: trpcExpress.CreateExpressContextOptions) {
+}: CreateFastifyContextOptions) {
   // Trích xuất JWT Token nếu có từ header Authorization
   const authHeader = req.headers.authorization;
   let user: any = null;

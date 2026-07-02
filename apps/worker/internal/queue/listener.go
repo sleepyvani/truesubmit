@@ -4,9 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/nats-io/nats.go"
 )
 
 type Testcase struct {
@@ -24,44 +23,60 @@ type JobPayload struct {
 }
 
 type QueueListener struct {
-	rdb      *redis.Client
-	queueKey string
+	nc  *nats.Conn
+	js  nats.JetStreamContext
+	sub *nats.Subscription
 }
 
-func NewQueueListener(connStr string, queueKey string) (*QueueListener, error) {
-	opts, err := redis.ParseURL(connStr)
+func NewQueueListener(natsURL string, subject string, streamName string, durableName string) (*QueueListener, error) {
+	nc, err := nats.Connect(natsURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse redis url: %w", err)
+		return nil, fmt.Errorf("failed to connect to NATS: %w", err)
 	}
 
-	rdb := redis.NewClient(opts)
+	js, err := nc.JetStream()
+	if err != nil {
+		nc.Close()
+		return nil, fmt.Errorf("failed to get JetStream context: %w", err)
+	}
+
+	sub, err := js.PullSubscribe(subject, durableName, nats.BindStream(streamName))
+	if err != nil {
+		nc.Close()
+		return nil, fmt.Errorf("failed to subscribe to NATS JetStream: %w", err)
+	}
+
 	return &QueueListener{
-		rdb:      rdb,
-		queueKey: queueKey,
+		nc:  nc,
+		js:  js,
+		sub: sub,
 	}, nil
 }
 
 func (ql *QueueListener) Close() error {
-	return ql.rdb.Close()
+	ql.nc.Close()
+	return nil
 }
 
-func (ql *QueueListener) PopJob(ctx context.Context) (*JobPayload, error) {
-	results, err := ql.rdb.BRPop(ctx, 5*time.Second, ql.queueKey).Result()
+func (ql *QueueListener) PopJob(ctx context.Context) (*JobPayload, *nats.Msg, error) {
+	msgs, err := ql.sub.Fetch(1, nats.Context(ctx))
 	if err != nil {
-		if err == redis.Nil {
-			return nil, nil
+		if err == context.Canceled || err == context.DeadlineExceeded || err == nats.ErrTimeout {
+			return nil, nil, nil
 		}
-		return nil, err
+		return nil, nil, err
 	}
 
-	if len(results) < 2 {
-		return nil, fmt.Errorf("unexpected brpop response length")
+	if len(msgs) == 0 {
+		return nil, nil, nil
 	}
 
+	msg := msgs[0]
 	var payload JobPayload
-	if err := json.Unmarshal([]byte(results[1]), &payload); err != nil {
-		return nil, fmt.Errorf("failed to parse job json: %w", err)
+	if err := json.Unmarshal(msg.Data, &payload); err != nil {
+		msg.Nak()
+		return nil, nil, fmt.Errorf("failed to parse job json: %w", err)
 	}
 
-	return &payload, nil
+	return &payload, msg, nil
 }
