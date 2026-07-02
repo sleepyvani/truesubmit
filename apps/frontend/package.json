@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3000",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint --max-warnings 0",
@@ -13,7 +13,6 @@
   "dependencies": {
     "@base-ui/react": "^1.6.0",
     "@repo/constants": "*",
-    "@repo/ui": "*",
     "@shadcn/react": "^0.2.0",
     "@tailwindcss/postcss": "^4.3.2",
     "class-variance-authority": "^0.7.1",
