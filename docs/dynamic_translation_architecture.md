@@ -89,26 +89,20 @@ export interface SystemLocalizationConfig {
 
 #### 3. Bảng Dịch thuật Giao diện (`ui_translations`)
 ```typescript
-import { pgTable, uuid, varchar, text, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, boolean, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 import { uuidv7 } from 'uuidv7';
 
 export const uiTranslations = pgTable('ui_translations', {
   id: uuid('id').primaryKey().$defaultFn(() => uuidv7()),
-  
-  // Khóa phân cấp bằng dấu chấm. Ví dụ: 'auth.login_btn', 'common.submit_btn'
   keyTranslation: varchar('key_translation', { length: 255 }).notNull(),
-  
-  // Mã ISO 639-1 (e.g. 'vi', 'en', 'ja')
   languageCode: varchar('language_code', { length: 10 }).notNull(),
-  
-  // Giá trị hiển thị tùy chỉnh
   val: text('val').notNull(),
-  
-  // Đánh dấu bản dịch do admin chỉnh sửa (để phân biệt với bản dịch mặc định)
   isCustom: boolean('is_custom').default(false).notNull(),
-  
+  createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (t) => [
+  uniqueIndex('key_lang_idx').on(t.keyTranslation, t.languageCode),
+]);
 ```
 
 ---
