@@ -7,9 +7,15 @@
       }
     ],
     "strictNullChecks": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/trpc/*": ["../backend/src/trpc/*"],
+      "@/database/*": ["../backend/src/database/*"],
+      "@/shared/*": ["../backend/src/shared/*"],
+      "@/modules/*": ["../backend/src/modules/*"]
     }
   },
   "include": [

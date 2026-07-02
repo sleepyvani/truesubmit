@@ -12,7 +12,7 @@ export const createSubmissionRouter = (db: NodePgDatabase<typeof schemas>) =>
           contestId: z.string().uuid().optional(),
           language: z.string(),
           sourceCode: z.string(),
-        })
+        }),
       )
       .mutation(async ({ input }) => {
         // Mock phản hồi nộp bài cực nhanh dưới 15ms
@@ -33,7 +33,12 @@ export const createSubmissionRouter = (db: NodePgDatabase<typeof schemas>) =>
           language: 'cpp',
           submittedAt: new Date(),
           results: [
-            { testcaseId: 'tc1', status: 'AC', timeSpent: 45, memorySpent: 2048 },
+            {
+              testcaseId: 'tc1',
+              status: 'AC',
+              timeSpent: 45,
+              memorySpent: 2048,
+            },
           ],
         };
       }),

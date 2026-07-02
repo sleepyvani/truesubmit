@@ -10,7 +10,9 @@ export const databaseProviders = [
     provide: POSTGRES_DB,
     inject: [ConfigService],
     useFactory: (configService: ConfigService) => {
-      const connectionString = configService.getOrThrow<string>('APP_DATABASE_URI_VALUE');
+      const connectionString = configService.getOrThrow<string>(
+        'APP_DATABASE_URI_VALUE',
+      );
       const pool = new Pool({ connectionString });
       return drizzle({ client: pool, schema: schemas });
     },

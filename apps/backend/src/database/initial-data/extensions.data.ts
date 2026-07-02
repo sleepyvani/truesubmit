@@ -13,7 +13,8 @@ export const DEFAULT_EXTENSIONS = [
   {
     name: 'Cấu hình lưu trữ media',
     keyExtension: ExtensionKey.MEDIA_STORAGE,
-    description: 'Cấu hình nơi lưu trữ hình ảnh, logo và tệp tin đa phương tiện của hệ thống.',
+    description:
+      'Cấu hình nơi lưu trữ hình ảnh, logo và tệp tin đa phương tiện của hệ thống.',
     isEnabled: true,
     defaultConfig: {
       provider: 'local', // 'local' | 's3' | 'r2' | 'tigris'
@@ -51,14 +52,20 @@ export const DEFAULT_EXTENSIONS = [
       },
       limits: {
         maxFileSizeMb: 5,
-        allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+        allowedMimeTypes: [
+          'image/png',
+          'image/jpeg',
+          'image/gif',
+          'image/webp',
+        ],
       },
     } as MediaStorageConfig,
   },
   {
     name: 'Cấu hình lưu trữ bài tập',
     keyExtension: ExtensionKey.PROBLEM_STORAGE,
-    description: 'Cấu hình nơi lưu trữ các bộ dữ liệu testcase, code mẫu và đề bài của hệ thống.',
+    description:
+      'Cấu hình nơi lưu trữ các bộ dữ liệu testcase, code mẫu và đề bài của hệ thống.',
     isEnabled: true,
     defaultConfig: {
       provider: 'local', // 'local' | 's3' | 'r2' | 'tigris'
@@ -89,7 +96,8 @@ export const DEFAULT_EXTENSIONS = [
   {
     name: 'Cấu hình Authentication (Better Auth)',
     keyExtension: ExtensionKey.AUTHENTICATION,
-    description: 'Quản lý phương thức đăng nhập, các nhà cung cấp bên thứ ba (OAuth) và plugins của Better Auth.',
+    description:
+      'Quản lý phương thức đăng nhập, các nhà cung cấp bên thứ ba (OAuth) và plugins của Better Auth.',
     isEnabled: true,
     defaultConfig: {
       betterAuth: { secret: '', url: '' },
@@ -109,7 +117,8 @@ export const DEFAULT_EXTENSIONS = [
   {
     name: 'Cấu hình Captcha chống Bot',
     keyExtension: ExtensionKey.CAPTCHA,
-    description: 'Bảo vệ biểu mẫu đăng ký, đăng nhập và nộp bài chống bot bằng Cloudflare Turnstile hoặc Google reCAPTCHA.',
+    description:
+      'Bảo vệ biểu mẫu đăng ký, đăng nhập và nộp bài chống bot bằng Cloudflare Turnstile hoặc Google reCAPTCHA.',
     isEnabled: false,
     defaultConfig: {
       provider: 'none', // 'none' | 'turnstile' | 'recaptcha' | 'hcaptcha'
@@ -126,7 +135,8 @@ export const DEFAULT_EXTENSIONS = [
   {
     name: 'Cấu hình Analytics & Marketing',
     keyExtension: ExtensionKey.ANALYTICS_MARKETING,
-    description: 'Tích hợp Google Analytics (GA4) và Google Ads Remarketing để theo dõi lượng truy cập và tối ưu quảng cáo.',
+    description:
+      'Tích hợp Google Analytics (GA4) và Google Ads Remarketing để theo dõi lượng truy cập và tối ưu quảng cáo.',
     isEnabled: false,
     defaultConfig: {
       googleAnalytics: { measurementId: '', isEnabled: false },
@@ -136,7 +146,8 @@ export const DEFAULT_EXTENSIONS = [
   {
     name: 'Cấu hình Bảo mật hệ thống',
     keyExtension: ExtensionKey.SYSTEM_SECURITY,
-    description: 'Cấu hình các cơ chế tự động phòng chống spam, brute force tài khoản, giới hạn request và bảo vệ phiên đăng nhập người dùng.',
+    description:
+      'Cấu hình các cơ chế tự động phòng chống spam, brute force tài khoản, giới hạn request và bảo vệ phiên đăng nhập người dùng.',
     isEnabled: true,
     defaultConfig: {
       session: {
@@ -177,7 +188,8 @@ export const DEFAULT_EXTENSIONS = [
   {
     name: 'Cấu hình thông báo hệ thống',
     keyExtension: ExtensionKey.SYSTEM_NOTIFICATION,
-    description: 'Cấu hình các cổng thông báo: SMTP Server (email), Telegram Bot, Discord Webhook, Slack Webhook và thiết lập quy tắc gửi tin cho từng sự kiện hệ thống.',
+    description:
+      'Cấu hình các cổng thông báo: SMTP Server (email), Telegram Bot, Discord Webhook, Slack Webhook và thiết lập quy tắc gửi tin cho từng sự kiện hệ thống.',
     isEnabled: false,
     defaultConfig: {
       smtpServers: [
@@ -220,10 +232,7 @@ export const DEFAULT_EXTENSIONS = [
           botToken: '123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ',
           chatId: '-100123456789',
           isEnabled: false,
-          triggers: [
-            'user.register_admin',
-            'security.ip_banned',
-          ],
+          triggers: ['user.register_admin', 'security.ip_banned'],
         },
       ],
       clientDiscordWebhook: {
@@ -236,10 +245,7 @@ export const DEFAULT_EXTENSIONS = [
           name: 'Discord Security Logs',
           webhookUrl: 'https://discord.com/api/webhooks/example',
           isEnabled: false,
-          triggers: [
-            'user.register_admin',
-            'security.ip_banned',
-          ],
+          triggers: ['user.register_admin', 'security.ip_banned'],
         },
       ],
       clientSlackWebhook: {
@@ -252,10 +258,7 @@ export const DEFAULT_EXTENSIONS = [
           name: 'Slack CRM Notifications',
           webhookUrl: 'https://hooks.slack.com/services/example',
           isEnabled: false,
-          triggers: [
-            'user.register_admin',
-            'security.ip_banned',
-          ],
+          triggers: ['user.register_admin', 'security.ip_banned'],
         },
       ],
     } as NotificationConfig,

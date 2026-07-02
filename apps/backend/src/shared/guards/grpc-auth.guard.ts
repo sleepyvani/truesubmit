@@ -8,7 +8,7 @@ export class GrpcAuthGuard implements CanActivate {
   constructor(private readonly configService: ConfigService) {}
 
   canActivate(
-    context: ExecutionContext
+    context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const type = context.getType();
     if (type !== 'rpc') {
@@ -16,17 +16,21 @@ export class GrpcAuthGuard implements CanActivate {
     }
 
     const rpcContext = context.switchToRpc();
-    const metadata = rpcContext.getContext() as Metadata;
+    const metadata = rpcContext.getContext();
 
     // Đọc token từ gRPC Metadata (chấp nhận header 'authorization' hoặc 'x-internal-token')
     const token =
       metadata.get('authorization')?.[0]?.toString() ||
       metadata.get('x-internal-token')?.[0]?.toString();
 
-    const expectedToken = this.configService.get<string>('APP_INTERNAL_AUTH_TOKEN');
+    const expectedToken = this.configService.get<string>(
+      'APP_INTERNAL_AUTH_TOKEN',
+    );
 
     if (!expectedToken || token !== expectedToken) {
-      console.warn(`➥ [gRPC-Auth] Access denied: Invalid or missing internal token.`);
+      console.warn(
+        `➥ [gRPC-Auth] Access denied: Invalid or missing internal token.`,
+      );
       return false;
     }
 

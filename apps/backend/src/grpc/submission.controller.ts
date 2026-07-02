@@ -30,7 +30,7 @@ interface ResultResponse {
 @UseGuards(GrpcAuthGuard)
 export class SubmissionController {
   constructor(
-    @Inject(POSTGRES_DB) private readonly db: NodePgDatabase<typeof schemas>
+    @Inject(POSTGRES_DB) private readonly db: NodePgDatabase<typeof schemas>,
   ) {}
 
   @GrpcMethod('SubmissionService', 'ReportResult')
@@ -40,7 +40,9 @@ export class SubmissionController {
     try {
       // Mock logic cập nhật kết quả chấm bài vào PostgreSQL bằng Drizzle
       // và broadcast realtime cho sinh viên qua SSE
-      console.log(`[gRPC] Received report for submission ${submissionId}: ${status} with score ${score}`);
+      console.log(
+        `[gRPC] Received report for submission ${submissionId}: ${status} with score ${score}`,
+      );
 
       return {
         success: true,

@@ -10,7 +10,7 @@ export const createContestRouter = (db: NodePgDatabase<typeof schemas>) =>
         z.object({
           page: z.number().int().min(1).default(1),
           limit: z.number().int().min(1).max(50).default(10),
-        })
+        }),
       )
       .query(async ({ input }) => {
         return {
@@ -37,7 +37,11 @@ export const createContestRouter = (db: NodePgDatabase<typeof schemas>) =>
           startTime: new Date(),
           endTime: new Date(Date.now() + 2 * 60 * 60 * 1000),
           problems: [
-            { id: '019058b8-4c9f-723b-a25e-e47e17cb97cb', code: 'A', title: 'A + B Problem' },
+            {
+              id: '019058b8-4c9f-723b-a25e-e47e17cb97cb',
+              code: 'A',
+              title: 'A + B Problem',
+            },
           ],
         };
       }),
@@ -47,7 +51,7 @@ export const createContestRouter = (db: NodePgDatabase<typeof schemas>) =>
         z.object({
           contestId: z.string(),
           password: z.string().optional(),
-        })
+        }),
       )
       .mutation(async ({ input }) => {
         return {

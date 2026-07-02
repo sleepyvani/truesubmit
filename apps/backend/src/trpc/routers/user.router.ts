@@ -25,7 +25,7 @@ export const createUserRouter = (db: NodePgDatabase<typeof schemas>) =>
           displayName: z.string().min(1).optional(),
           bio: z.string().optional(),
           avatarUrl: z.string().url().optional(),
-        })
+        }),
       )
       .mutation(async ({ input }) => {
         return {

@@ -13,7 +13,7 @@ import { DatabaseModule } from '../database/database.module';
 export class TrpcModule implements NestModule, OnModuleInit {
   constructor(
     private readonly trpcRouter: TrpcRouter,
-    private readonly adapterHost: HttpAdapterHost
+    private readonly adapterHost: HttpAdapterHost,
   ) {}
 
   onModuleInit() {

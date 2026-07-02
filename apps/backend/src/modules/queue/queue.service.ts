@@ -15,7 +15,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     const natsUrl = this.configService.get<string>(
       'APP_NATS_URL',
-      'nats://127.0.0.1:4222'
+      'nats://127.0.0.1:4222',
     );
     console.log(`➥ Connecting to NATS server at: ${natsUrl}`);
     try {
@@ -27,7 +27,9 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
         await jsm.streams.info(this.streamName);
         console.log(`➥ NATS Stream "${this.streamName}" already exists.`);
       } catch (err) {
-        console.log(`➥ NATS Stream "${this.streamName}" does not exist, creating...`);
+        console.log(
+          `➥ NATS Stream "${this.streamName}" does not exist, creating...`,
+        );
         await jsm.streams.add({
           name: this.streamName,
           subjects: [this.subject],
@@ -59,6 +61,8 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     }
     const payload = this.codec.encode(job);
     const pubAck = await this.jsClient.publish(this.subject, payload);
-    console.log(`➥ Pushed job to NATS JetStream (Seq: ${pubAck.seq}) for submission: ${job.submissionId}`);
+    console.log(
+      `➥ Pushed job to NATS JetStream (Seq: ${pubAck.seq}) for submission: ${job.submissionId}`,
+    );
   }
 }

@@ -10,7 +10,7 @@ export const createAuthRouter = (db: NodePgDatabase<typeof schemas>) =>
         z.object({
           email: z.string().email(),
           password: z.string(),
-        })
+        }),
       )
       .mutation(async ({ input }) => {
         // Logic mock cho login
@@ -29,7 +29,7 @@ export const createAuthRouter = (db: NodePgDatabase<typeof schemas>) =>
           displayName: z.string(),
           studentCode: z.string().optional(),
           className: z.string().optional(),
-        })
+        }),
       )
       .mutation(async ({ input }) => {
         // Logic mock cho register

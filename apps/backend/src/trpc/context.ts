@@ -2,13 +2,10 @@ import { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
 
 export type Context = Awaited<ReturnType<typeof createContext>>;
 
-export function createContext({
-  req,
-  res,
-}: CreateFastifyContextOptions) {
+export function createContext({ req, res }: CreateFastifyContextOptions) {
   // Trích xuất JWT Token nếu có từ header Authorization
   const authHeader = req.headers.authorization;
-  let user: any = null;
+  const user: any = null;
 
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1];

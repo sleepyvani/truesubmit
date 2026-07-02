@@ -12,7 +12,7 @@ export const createProblemRouter = (db: NodePgDatabase<typeof schemas>) =>
           limit: z.number().int().min(1).max(100).default(20),
           difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
           search: z.string().optional(),
-        })
+        }),
       )
       .query(async ({ input }) => {
         return {
@@ -43,7 +43,11 @@ export const createProblemRouter = (db: NodePgDatabase<typeof schemas>) =>
           timeLimit: 1000, // ms
           memoryLimit: 256, // MB
           codeTemplates: [
-            { language: 'cpp', template: '#include <iostream>\nusing namespace std;\nint main() {\n  // Code here\n  return 0;\n}' },
+            {
+              language: 'cpp',
+              template:
+                '#include <iostream>\nusing namespace std;\nint main() {\n  // Code here\n  return 0;\n}',
+            },
           ],
         };
       }),

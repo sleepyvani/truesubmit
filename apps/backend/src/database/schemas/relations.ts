@@ -27,22 +27,10 @@ import {
   submissionDrafts,
   plagiarismReports,
 } from './submissions.schema';
-import {
-  cmsPages,
-  menus,
-  gallery,
-} from './cms.schema';
-import {
-  notifications,
-  userNotifications,
-} from './notifications.schema';
-import {
-  extensions,
-  extensionConfigs,
-} from './extensions.schema';
-import {
-  activityLogs,
-} from './monitoring.schema';
+import { cmsPages, menus, gallery } from './cms.schema';
+import { notifications, userNotifications } from './notifications.schema';
+import { extensions, extensionConfigs } from './extensions.schema';
+import { activityLogs } from './monitoring.schema';
 
 export const usersRelations = relations(users, ({ one, many }) => ({
   role: one(roles, {
@@ -142,12 +130,15 @@ export const problemTagsRelations = relations(problemTags, ({ one }) => ({
   }),
 }));
 
-export const problemEditorialsRelations = relations(problemEditorials, ({ one }) => ({
-  problem: one(problems, {
-    fields: [problemEditorials.problemId],
-    references: [problems.id],
+export const problemEditorialsRelations = relations(
+  problemEditorials,
+  ({ one }) => ({
+    problem: one(problems, {
+      fields: [problemEditorials.problemId],
+      references: [problems.id],
+    }),
   }),
-}));
+);
 
 export const contestsRelations = relations(contests, ({ one, many }) => ({
   creator: one(users, {
@@ -161,34 +152,43 @@ export const contestsRelations = relations(contests, ({ one, many }) => ({
   submissions: many(submissions),
 }));
 
-export const contestProblemsRelations = relations(contestProblems, ({ one }) => ({
-  contest: one(contests, {
-    fields: [contestProblems.contestId],
-    references: [contests.id],
+export const contestProblemsRelations = relations(
+  contestProblems,
+  ({ one }) => ({
+    contest: one(contests, {
+      fields: [contestProblems.contestId],
+      references: [contests.id],
+    }),
+    problem: one(problems, {
+      fields: [contestProblems.problemId],
+      references: [problems.id],
+    }),
   }),
-  problem: one(problems, {
-    fields: [contestProblems.problemId],
-    references: [problems.id],
-  }),
-}));
+);
 
-export const contestParticipantsRelations = relations(contestParticipants, ({ one }) => ({
-  contest: one(contests, {
-    fields: [contestParticipants.contestId],
-    references: [contests.id],
+export const contestParticipantsRelations = relations(
+  contestParticipants,
+  ({ one }) => ({
+    contest: one(contests, {
+      fields: [contestParticipants.contestId],
+      references: [contests.id],
+    }),
+    user: one(users, {
+      fields: [contestParticipants.userId],
+      references: [users.id],
+    }),
   }),
-  user: one(users, {
-    fields: [contestParticipants.userId],
-    references: [users.id],
-  }),
-}));
+);
 
-export const contestAnnouncementsRelations = relations(contestAnnouncements, ({ one }) => ({
-  contest: one(contests, {
-    fields: [contestAnnouncements.contestId],
-    references: [contests.id],
+export const contestAnnouncementsRelations = relations(
+  contestAnnouncements,
+  ({ one }) => ({
+    contest: one(contests, {
+      fields: [contestAnnouncements.contestId],
+      references: [contests.id],
+    }),
   }),
-}));
+);
 
 export const submissionsRelations = relations(submissions, ({ one, many }) => ({
   user: one(users, {
@@ -204,48 +204,61 @@ export const submissionsRelations = relations(submissions, ({ one, many }) => ({
     references: [contests.id],
   }),
   results: many(submissionResults),
-  plagiarismReportsAsA: many(plagiarismReports, { relationName: 'plagiarism_a' }),
-  plagiarismReportsAsB: many(plagiarismReports, { relationName: 'plagiarism_b' }),
-}));
-
-export const submissionResultsRelations = relations(submissionResults, ({ one }) => ({
-  submission: one(submissions, {
-    fields: [submissionResults.submissionId],
-    references: [submissions.id],
-  }),
-  testcase: one(testcases, {
-    fields: [submissionResults.testcaseId],
-    references: [testcases.id],
-  }),
-}));
-
-export const submissionDraftsRelations = relations(submissionDrafts, ({ one }) => ({
-  user: one(users, {
-    fields: [submissionDrafts.userId],
-    references: [users.id],
-  }),
-  problem: one(problems, {
-    fields: [submissionDrafts.problemId],
-    references: [problems.id],
-  }),
-}));
-
-export const plagiarismReportsRelations = relations(plagiarismReports, ({ one }) => ({
-  contest: one(contests, {
-    fields: [plagiarismReports.contestId],
-    references: [contests.id],
-  }),
-  submissionA: one(submissions, {
-    fields: [plagiarismReports.submissionAId],
-    references: [submissions.id],
+  plagiarismReportsAsA: many(plagiarismReports, {
     relationName: 'plagiarism_a',
   }),
-  submissionB: one(submissions, {
-    fields: [plagiarismReports.submissionBId],
-    references: [submissions.id],
+  plagiarismReportsAsB: many(plagiarismReports, {
     relationName: 'plagiarism_b',
   }),
 }));
+
+export const submissionResultsRelations = relations(
+  submissionResults,
+  ({ one }) => ({
+    submission: one(submissions, {
+      fields: [submissionResults.submissionId],
+      references: [submissions.id],
+    }),
+    testcase: one(testcases, {
+      fields: [submissionResults.testcaseId],
+      references: [testcases.id],
+    }),
+  }),
+);
+
+export const submissionDraftsRelations = relations(
+  submissionDrafts,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [submissionDrafts.userId],
+      references: [users.id],
+    }),
+    problem: one(problems, {
+      fields: [submissionDrafts.problemId],
+      references: [problems.id],
+    }),
+  }),
+);
+
+export const plagiarismReportsRelations = relations(
+  plagiarismReports,
+  ({ one }) => ({
+    contest: one(contests, {
+      fields: [plagiarismReports.contestId],
+      references: [contests.id],
+    }),
+    submissionA: one(submissions, {
+      fields: [plagiarismReports.submissionAId],
+      references: [submissions.id],
+      relationName: 'plagiarism_a',
+    }),
+    submissionB: one(submissions, {
+      fields: [plagiarismReports.submissionBId],
+      references: [submissions.id],
+      relationName: 'plagiarism_b',
+    }),
+  }),
+);
 
 export const galleryRelations = relations(gallery, ({ one }) => ({
   uploadedByUser: one(users, {
@@ -258,16 +271,19 @@ export const notificationsRelations = relations(notifications, ({ many }) => ({
   userNotifications: many(userNotifications),
 }));
 
-export const userNotificationsRelations = relations(userNotifications, ({ one }) => ({
-  notification: one(notifications, {
-    fields: [userNotifications.notificationId],
-    references: [notifications.id],
+export const userNotificationsRelations = relations(
+  userNotifications,
+  ({ one }) => ({
+    notification: one(notifications, {
+      fields: [userNotifications.notificationId],
+      references: [notifications.id],
+    }),
+    user: one(users, {
+      fields: [userNotifications.userId],
+      references: [users.id],
+    }),
   }),
-  user: one(users, {
-    fields: [userNotifications.userId],
-    references: [users.id],
-  }),
-}));
+);
 
 export const extensionsRelations = relations(extensions, ({ one }) => ({
   config: one(extensionConfigs, {
@@ -276,12 +292,15 @@ export const extensionsRelations = relations(extensions, ({ one }) => ({
   }),
 }));
 
-export const extensionConfigsRelations = relations(extensionConfigs, ({ one }) => ({
-  extension: one(extensions, {
-    fields: [extensionConfigs.extensionId],
-    references: [extensions.id],
+export const extensionConfigsRelations = relations(
+  extensionConfigs,
+  ({ one }) => ({
+    extension: one(extensions, {
+      fields: [extensionConfigs.extensionId],
+      references: [extensions.id],
+    }),
   }),
-}));
+);
 
 export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
   user: one(users, {
