@@ -11,6 +11,7 @@ import { createContestRouter } from './routers/contest.router';
 import { createCmsRouter } from './routers/cms.router';
 import { createSubmissionRouter } from './routers/submission.router';
 import { createConfigurationRouter } from './routers/configuration.router';
+import { ConfigurationService } from '../modules/configuration/configuration.service';
 
 @Injectable()
 export class TrpcRouter {
@@ -18,6 +19,7 @@ export class TrpcRouter {
 
   constructor(
     @Inject(POSTGRES_DB) private readonly db: NodePgDatabase<typeof schemas>,
+    private readonly configurationService: ConfigurationService,
   ) {
     this.appRouter = router({
       auth: createAuthRouter(this.db),
@@ -26,7 +28,7 @@ export class TrpcRouter {
       contest: createContestRouter(this.db),
       cms: createCmsRouter(this.db),
       submission: createSubmissionRouter(this.db),
-      configuration: createConfigurationRouter(this.db),
+      configuration: createConfigurationRouter(this.configurationService),
     });
   }
 }

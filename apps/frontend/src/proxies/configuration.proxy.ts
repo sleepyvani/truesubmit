@@ -24,7 +24,7 @@ export async function checkConfiguration(req: NextRequest): Promise<NextResponse
         return NextResponse.redirect(new URL("/configuration", req.url));
       }
     }
-  } catch (error) {
+  } catch {
     if (!pathname.startsWith("/configuration")) {
       return NextResponse.redirect(new URL("/configuration", req.url));
     }

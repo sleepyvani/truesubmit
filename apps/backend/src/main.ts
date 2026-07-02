@@ -6,6 +6,7 @@ import {
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
+import { existsSync } from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -13,12 +14,20 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
+  app.getHttpAdapter().get('/', (req, res) => {
+    res.send('Hello World');
+  });
+
   const grpcPort = process.env.APP_INTERNAL_GRPC_PORT ?? '50051';
+  const localProto = join(__dirname, 'grpc/submission.proto');
+  const distProto = join(__dirname, '../grpc/submission.proto');
+  const protoPath = existsSync(localProto) ? localProto : distProto;
+
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
       package: 'submission',
-      protoPath: join(__dirname, 'grpc/submission.proto'),
+      protoPath,
       url: `0.0.0.0:${grpcPort}`,
     },
   });

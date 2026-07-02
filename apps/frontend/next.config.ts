@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactCompiler: true,
   poweredByHeader: false,
+  env: {
+    APP_BACKEND_URL: process.env.APP_BACKEND_URL || "http://localhost:5000",
+  },
   async headers() {
     return [
       {

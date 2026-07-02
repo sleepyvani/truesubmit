@@ -4,9 +4,10 @@ import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
 import { TrpcRouter } from './trpc.router';
 import { createContext } from './context';
 import { DatabaseModule } from '../database/database.module';
+import { ConfigurationModule } from '../modules/configuration/configuration.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, ConfigurationModule],
   providers: [TrpcRouter],
   exports: [TrpcRouter],
 })

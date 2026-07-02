@@ -4,8 +4,8 @@ import { connect, NatsConnection, JSONCodec, JetStreamClient } from 'nats';
 
 @Injectable()
 export class QueueService implements OnModuleInit, OnModuleDestroy {
-  private natsConn: NatsConnection;
-  private jsClient: JetStreamClient;
+  private natsConn!: NatsConnection;
+  private jsClient!: JetStreamClient;
   private readonly codec = JSONCodec();
   private readonly streamName = 'TRUESUBMIT';
   private readonly subject = 'submissions.created';
@@ -45,6 +45,33 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     if (this.natsConn) {
       console.log(`➥ Closing NATS connection...`);
       await this.natsConn.close();
+    }
+  }
+
+  async checkConnection(): Promise<{ success: boolean; message: string }> {
+    const natsUrl = this.configService.get<string>(
+      'APP_NATS_URL',
+      'nats://127.0.0.1:4222',
+    );
+    try {
+      if (this.natsConn && !this.natsConn.isClosed()) {
+        await this.natsConn.flush();
+        return {
+          success: true,
+          message: 'Kết nối đến NATS server thành công.',
+        };
+      }
+      const tempConn = await connect({ servers: natsUrl, timeout: 2000 });
+      await tempConn.close();
+      return {
+        success: true,
+        message: 'Kết nối đến NATS server thành công.',
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        message: `Không thể kết nối đến NATS server tại ${natsUrl}: ${err?.message || err}`,
+      };
     }
   }
 

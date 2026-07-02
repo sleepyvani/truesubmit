@@ -1,30 +1,57 @@
 import { router, publicProcedure } from '@/trpc/trpc.instance';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schemas from '@/database/schemas';
-import { eq } from 'drizzle-orm';
+import { z } from 'zod';
+import { ConfigurationService } from '../../modules/configuration/configuration.service';
 
-export const createConfigurationRouter = (db: NodePgDatabase<typeof schemas>) =>
+export const createConfigurationRouter = (
+  configService: ConfigurationService,
+) =>
   router({
     status: publicProcedure.query(async () => {
-      try {
-        const settings = await db
-          .select()
-          .from(schemas.systemSettings)
-          .where(eq(schemas.systemSettings.keySetting, 'system_status'))
-          .limit(1);
-        const firstSetting = settings[0];
-        const isSystemConfigured =
-          firstSetting !== undefined &&
-          (firstSetting.val as Record<string, any>)?.initialized === true;
-        const userList = await db.select().from(schemas.users).limit(1);
-        const hasUsers = userList.length > 0;
-        return {
-          isInitialized: isSystemConfigured && hasUsers,
-        };
-      } catch (error) {
-        return {
-          isInitialized: false,
-        };
-      }
+      return configService.getSetupStatus();
+    }),
+
+    checkDb: publicProcedure.mutation(async () => {
+      return configService.checkDbConnection();
+    }),
+
+    migrateDb: publicProcedure.mutation(async () => {
+      return configService.migrateDb();
+    }),
+
+    checkNats: publicProcedure.mutation(async () => {
+      return configService.checkNats();
+    }),
+
+    getDbTables: publicProcedure.query(async () => {
+      return configService.getDbTables();
+    }),
+
+    setupAdmin: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email(),
+          password: z.string().min(6),
+          displayName: z.string(),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        return configService.setupAdmin(input);
+      }),
+
+    saveSystemConfig: publicProcedure
+      .input(
+        z.object({
+          systemName: z.string().min(1),
+          allowedLanguages: z.array(z.string()),
+          sandboxTimeLimit: z.number().min(1),
+          sandboxMemoryLimit: z.number().min(1),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        return configService.saveSystemConfig(input);
+      }),
+
+    completeSetup: publicProcedure.mutation(async () => {
+      return configService.completeSetup();
     }),
   });
