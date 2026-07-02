@@ -2,6 +2,8 @@ export enum SystemSettingKey {
   SANDBOX_LIMITS = 'sandbox_limits',
   ALLOWED_LANGUAGES = 'allowed_languages',
   SYSTEM_STATUS = 'system_status',
+  SUBMISSION_LIMITS = 'submission_limits',
+  WORKER_QUEUE = 'worker_queue',
 }
 
 export const DEFAULT_SYSTEM_SETTINGS: Record<SystemSettingKey, any> = {
@@ -25,6 +27,16 @@ export const DEFAULT_SYSTEM_SETTINGS: Record<SystemSettingKey, any> = {
     maintenanceMode: false,
     registrationOpen: true,
     submissionQueueEnabled: true,
+  },
+  [SystemSettingKey.SUBMISSION_LIMITS]: {
+    maxCodeSizeKb: 64,
+    rateLimitSeconds: 10,
+    maxSubmissionsPerDay: 100,
+  },
+  [SystemSettingKey.WORKER_QUEUE]: {
+    maxConcurrentJobs: 4,
+    jobRetryCount: 3,
+    workerHeartbeatIntervalMs: 5000,
   },
 };
 
