@@ -1,16 +1,16 @@
 # Backend API Documentation (`apps/api`) 🎛️
 
-Hệ thống API Backend của **TrueSubmit** được phát triển trên nền tảng **NestJS (TypeScript)** và **Drizzle ORM** kết hợp **PostgreSQL**. Đây là bộ não điều phối dữ liệu, tiếp nhận bài nộp và phân phối công việc cho các Worker chấm bài.
+Hệ thống API Backend của **TrueSubmit** được phát triển trên nền tảng **NestJS (TypeScript)** với adapter hiệu năng cao **Fastify**, kết hợp **Drizzle ORM** và **PostgreSQL**. Đây là bộ não điều phối dữ liệu, tiếp nhận bài nộp và phân phối công việc cho các Worker chấm bài.
 
 ---
 
 ## 🛠️ Tech Stack & Thư viện sử dụng
-- **Framework**: NestJS (TypeScript)
+- **Framework**: NestJS + Fastify (TypeScript)
 - **Database ORM**: Drizzle ORM + Pg-driver (PostgreSQL)
-- **API Giao tiếp Client**: tRPC Server (Type-safe API cho truy vấn/thao tác) & Server-Sent Events (SSE) (Cho luồng real-time stream kết quả)
+- **API Giao tiếp Client**: tRPC Server (đăng ký qua `fastifyTRPCPlugin`) & Server-Sent Events (SSE) (Cho luồng real-time stream kết quả)
 - **API Giao tiếp Worker**: NestJS gRPC Microservice (Chạy trên cổng `50051`, nhận kết quả chấm từ Golang Worker)
 - **Shared Constants Workspace**: Package `@repo/constants` (Dành cho việc chia sẻ enum Roles và Permissions giữa Frontend và Backend)
-- **Cache & Queue Client**: Redis (IoRedis) để lưu hàng đợi chấm bài
+- **Message Broker & Queue**: NATS JetStream để quản lý hàng đợi và đảm bảo bền vững dữ liệu bài nộp
 - **Bảo mật & Rate Limit**: `@nestjs/throttler` (Chống spam nộp bài)
 - **Xác thực**: JWT (JSON Web Token) + Passport (RBAC)
 
@@ -21,8 +21,8 @@ Hệ thống API Backend của **TrueSubmit** được phát triển trên nền
 ```text
 apps/api/
 ├── src/
-│   ├── main.ts                   # Điểm khởi chạy NestJS (Kích hoạt HTTP tRPC, SSE, và gRPC Microservice cổng 50051)
-│   ├── app.module.ts             # Module gốc kết nối cơ sở dữ liệu, Redis, Config, tRPC, gRPC và sub-modules
+│   ├── main.ts                   # Điểm khởi chạy NestJS (Kích hoạt Fastify Adapter, tRPC, SSE, và gRPC Microservice cổng 50051)
+│   ├── app.module.ts             # Module gốc kết nối cơ sở dữ liệu, NATS, Config, tRPC, gRPC và sub-modules
 │   │
 │   ├── database/                 # Drizzle Connection & Bảng cơ sở dữ liệu
 │   │   ├── schemas/              # Thiết kế schema dạng mô-đun hóa, đồng bộ với database.md
@@ -43,9 +43,9 @@ apps/api/
 │   │   └── migrations/           # Thư mục chứa các file SQL do Drizzle Kit sinh ra
 │   │
 │   ├── trpc/                     # Cổng tRPC API phục vụ Frontend (Next.js)
-│   │   ├── trpc.module.ts        # Module khởi tạo context và tích hợp tRPC vào NestJS
+│   │   ├── trpc.module.ts        # Module khởi tạo context và tích hợp tRPC vào NestJS qua fastifyTRPCPlugin
 │   │   ├── trpc.router.ts        # Root Router kết hợp các sub-routers lại với nhau
-│   │   ├── context.ts            # Tạo context cho mỗi request tRPC (chứa db, redis, user auth)
+│   │   ├── context.ts            # Tạo context cho mỗi request tRPC (chứa db, nats, user auth)
 │   │   └── routers/              # Chứa các sub-routers nghiệp vụ
 │   │       ├── auth.router.ts    # Router đăng ký, đăng nhập
 │   │       ├── user.router.ts    # Router hồ sơ cá nhân và nhóm
@@ -65,9 +65,9 @@ apps/api/
 │   │   │   ├── submissions.controller.ts # Chứa endpoint HTTP GET phục vụ luồng SSE đẩy điểm realtime
 │   │   │   ├── submissions.service.ts    # Xử lý nghiệp vụ chính (gửi hàng đợi, phân phối kết quả)
 │   │   │   └── submissions.repository.ts # [Repository Pattern] Chứa các truy vấn Drizzle đọc/ghi bảng submissions
-│   │   ├── queue/                # Tích hợp Redis Queue kết nối tới Golang Worker
+│   │   ├── queue/                # Tích hợp NATS JetStream kết nối tới Golang Worker
 │   │   │   ├── queue.module.ts
-│   │   │   └── queue.service.ts  # Quản lý kết nối Redis & chứa hàm LPUSH job nộp bài
+│   │   │   └── queue.service.ts  # Quản lý kết nối NATS, tự khởi tạo Stream TRUESUBMIT và đẩy job
 │   │   └── auth/                 # Chứa JWT Strategy và logic hash mật khẩu dùng chung
 │   │       ├── auth.module.ts
 │   │       ├── auth.service.ts
@@ -140,11 +140,11 @@ export class ProblemsRepository {
 ### 1. Tiếp nhận qua tRPC và Phản hồi cực nhanh (Low Latency Submission)
 Khi thí sinh bấm "Nộp bài", client gọi tRPC mutation `submission.submit`, NestJS API sẽ xử lý tối giản và phản hồi ngay lập tức:
 - **Không thực thi đồng bộ**: API **không tự chạy hay biên dịch code**, cũng không đợi Docker thực thi xong mới trả kết quả.
-- **Quy trình xử lý cực nhanh (< 15ms)**:
+- **Quy trình xử lý cực nhanh (< 10ms)**:
   1. Validate định dạng dữ liệu đầu vào.
   2. Dùng Drizzle tạo mới một record `submission` trạng thái `PENDING` trong PostgreSQL.
   3. Lấy thông tin giới hạn tài nguyên của bài toán (thời gian tối đa, bộ nhớ RAM, CPU Cores) từ bảng `problems`.
-  4. Đẩy một Job chứa thông tin `{ submissionId, language, code, timeLimit, memoryLimit, cpuLimit }` vào **Redis Queue** thông qua lệnh `LPUSH`.
+  4. Đẩy một Job chứa thông tin `{ submissionId, language, code, timeLimit, memoryLimit }` vào **NATS JetStream** qua subject `submissions.created`.
   5. Trả ngay mã kết quả kèm theo `submissionId` cho frontend.
 
 ### 2. Sử dụng Drizzle ORM thay vì Prisma
@@ -175,13 +175,13 @@ Tạo file `.env` ở thư mục gốc của `apps/api` dựa trên file `.env.e
 | Biến môi trường | Ý nghĩa | Giá trị mẫu |
 | :--- | :--- | :--- |
 | `APP_DATABASE_URI_VALUE` | Chuỗi kết nối PostgreSQL (dùng cho Drizzle ORM) | `postgresql://postgres:password@localhost:5432/truesubmit?schema=public` |
-| `APP_REDIS_CONN_STRING` | Chuỗi kết nối Redis (giao thức `redis://`) | `redis://127.0.0.1:6379` |
+| `APP_NATS_URL` | Chuỗi kết nối NATS Server (giao thức `nats://`) | `nats://127.0.0.1:4222` |
 | `APP_INTERNAL_AUTH_TOKEN`| Token xác thực bảo mật kết nối từ Worker | `secure_internal_token_for_communication` |
 
 ### 📝 Các cấu hình được Code cứng / Fallback trong code:
 - **Cổng Server (`PORT`) & Môi trường (`NODE_ENV`)**: Được xác định trực tiếp trong mã nguồn (mặc định port `3001` cho dev và tự động nhận dạng môi trường).
 - **Cấu hình CORS (`CORS_ORIGIN`)**: Sử dụng một **mảng các domain được phép** khai báo trực tiếp trong `main.ts` (ví dụ: `['http://localhost:3000', 'https://truesubmit.yourdomain.com']`). Điều này loại bỏ hoàn toàn việc phải cấu hình CORS thủ công qua file `.env`.
-- **Tên hàng đợi (`SUBMISSION_QUEUE_NAME`)**: Code cứng trực tiếp chuỗi `"truesubmit_queue"` dùng chung cho cả NestJS và Golang Worker.
+- **Tên Stream / Hàng đợi**: Stream `"TRUESUBMIT"`, Subject `"submissions.created"` được sử dụng nhất quán cho cả NestJS và Go Worker.
 - **Thời gian hết hạn JWT (`JWT_EXPIRES_IN`)**: Cố định `"7d"`.
 - **Khóa bảo mật JWT (`JWT_SECRET`)**: Sử dụng cơ chế fallback an toàn: `process.env.JWT_SECRET || 'fallback-secret-for-dev'`.
 

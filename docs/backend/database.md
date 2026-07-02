@@ -13,7 +13,7 @@ Tài liệu này định nghĩa cấu trúc phân chia các file schema trong **
  
 ### 1. File `users.schema.ts` (Quản lý Người dùng, Vai trò & Phân quyền)
 * **Bảng `users`**: Thông tin tài khoản chính (email, mật khẩu băm, trạng thái tài khoản) liên kết trực tiếp tới mã vai trò `role_id`.
-* **Bảng `user_profiles`**: Hồ sơ chi tiết (Họ tên hiển thị, ảnh đại diện, tổ chức/trường học/công ty, mã số sinh viên, lớp học).
+* **Bảng `user_profiles`**: Hồ sơ chi tiết (Họ tên hiển thị, ảnh đại diện, tổ chức/trường học/công ty, mã số sinh viên, lớp học, ngôn ngữ ưa thích `preferredLanguage` và múi giờ `timezone`).
 * **Bảng `roles`**: Lưu danh sách các vai trò (như Admin, Creator, User, Guest) định danh duy nhất bằng `keyRole` (sử dụng enum `KeyRole` từ `@repo/constants`) và chứa mảng quyền hạn `permissions` kiểu `text[]` (sử dụng các hằng số của enum `KeyPermission`).
 * **Bảng `groups`**: Quản lý các nhóm học tập hoặc các lớp học hành chính.
 * **Bảng `group_members`**: Liên kết người dùng vào các nhóm tương ứng (sinh viên tham gia lớp học).
@@ -61,6 +61,7 @@ Tài liệu này định nghĩa cấu trúc phân chia các file schema trong **
 
 ### 10. File `settings.schema.ts` (Cấu hình Hệ thống)
 * **Bảng `system_settings`**: Cấu hình toàn cục động (Bảo trì hệ thống, danh sách ngôn ngữ được nộp bài).
+* **Bảng `ui_translations`**: Lưu trữ các bản dịch đa ngôn ngữ động cho các thành phần giao diện người dùng.
 
 ### 11. File `relations.ts` (Định nghĩa Mối quan hệ)
 * **Mục đích**: Định nghĩa tập trung tất cả các mối quan hệ (One-to-One, One-to-Many, Many-to-Many) giữa các thực thể mà không chứa bất kỳ dòng chú thích phân vùng nào. Việc tách biệt quan hệ ra file riêng giúp ngăn ngừa triệt để lỗi vòng lặp phụ thuộc (Circular Import Dependency) trong TypeScript.

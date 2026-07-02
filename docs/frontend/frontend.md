@@ -89,7 +89,7 @@ Nhằm tối ưu quy trình cài đặt ban đầu (đối với môi trường 
 
 ### 2. Trang cài đặt (`apps/web/src/app/configuration/page.tsx`)
 - Giao diện thiết lập đa bước (Multi-step Configuration Wizard):
-  - **Bước 1: Cấu hình Kết nối**: Nhập thông số kết nối Database PostgreSQL và Redis.
+  - **Bước 1: Cấu hình Kết nối**: Nhập thông số kết nối Database PostgreSQL và NATS.
   - **Bước 2: Khởi tạo dữ liệu**: Thực thi migrate DB schemas và chèn dữ liệu mẫu/mặc định.
   - **Bước 3: Tạo Tài khoản Admin**: Đăng ký tài khoản Root Admin đầu tiên để quản lý toàn bộ trang web.
 
