@@ -7,7 +7,7 @@ Tài liệu này định nghĩa cấu trúc phân chia các file schema trong **
 ### Nguyên tắc thiết kế cốt lõi
 * **Khóa chính UUIDv7**: Toàn bộ các bảng sử dụng UUID làm khóa chính đều được cấu hình sinh tự động dạng **UUIDv7** ở tầng Application (thông qua thư viện `uuidv7` và Drizzle `$defaultFn(() => uuidv7())`). Việc này giúp đảm bảo tính tuần tự tăng dần theo thời gian (time-ordered), tránh hiện tượng **Page Split** trên chỉ mục B-Tree của PostgreSQL, giảm phân mảnh đĩa và tăng hiệu năng ghi khi chịu tải lớn.
 * **Mảng quyền hạn trực tiếp**: Thay vì phân rã thành nhiều bảng liên kết phức tạp (`role_permissions`), quyền hạn (`permissions`) được lưu trữ trực tiếp dưới dạng một mảng chuỗi (`text[]` của PostgreSQL) ngay tại cột `permissions` của bảng `roles`.
-* **Hằng số dùng chung**: Các vai trò (`KeyRole`) và quyền hạn (`KeyPermission`) được quản lý tập trung tại package chung `@repo/constants` để dùng chung cho cả Frontend (`apps/web`) và Backend (`apps/api`).
+* **Hằng số dùng chung**: Các vai trò (`KeyRole`) và quyền hạn (`KeyPermission`) được quản lý tập trung tại package chung `@repo/constants` để dùng chung cho cả Frontend (`apps/frontend`) và Backend (`apps/api`).
 
 ---
  

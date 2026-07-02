@@ -10,7 +10,7 @@ Tài liệu này định nghĩa quy chuẩn làm việc bắt buộc dành cho m
 * **Nguyên tắc vàng**: Tuyệt đối **KHÔNG** commit trực tiếp lên nhánh `main`. Nhánh `main` luôn là mã nguồn ổn định nhất đang hoặc sẵn sàng chạy trên production.
 * **Tạo nhánh tính năng**: Mọi task phát triển chức năng mới hoặc sửa lỗi phải được thực hiện trên một nhánh con độc lập:
   * Tính năng mới: `feature/ten-tinh-nang` (Ví dụ: `feature/grpc-auth`)
-  * Sửa lỗi: `bugfix/ten-loi` (Ví dụ: `bugfix/redis-connection-leak`)
+  * Sửa lỗi: `bugfix/ten-loi` (Ví dụ: `bugfix/nats-connection-leak`)
 * **Chính sách nhánh Thử nghiệm (Experimental Branch)**:
   * Khi triển khai các chức năng phức tạp hoặc **chưa chắc chắn** giải pháp có hoạt động tốt, hiệu quả, hay đúng ý mình hay không, **bắt buộc** phải tạo nhánh thử nghiệm với tiền tố `experimental/ten-tinh-nang`.
   * Triển khai code, chạy thử nghiệm cục bộ, đo đạc hiệu năng trên nhánh này. 
@@ -58,7 +58,7 @@ Tài liệu này định nghĩa quy chuẩn làm việc bắt buộc dành cho m
    * **Worker**: Chạy `go test -v ./...` trong thư mục `apps/worker` để xác nhận Docker Sandbox khởi chạy và chấm bài đúng.
    * **API Gateway & Web**: Chạy linting và build thử để đảm bảo TypeScript không có lỗi biên dịch.
 2. **Kiểm thử liên thông (Integration Testing)**:
-   * Chạy đầy đủ các thành phần (NextJS, NestJS, Go Worker, Redis, PostgreSQL).
+   * Chạy đầy đủ các thành phần (NextJS, NestJS, Go Worker, NATS, PostgreSQL).
    * Thực hiện nộp bài chạy thử trên giao diện Web để chắc chắn luồng dữ liệu thời gian thực (realtime) từ Sandbox về UI thông qua gRPC và SSE hoạt động mượt mà.
 3. **Cập nhật tài liệu (Documentation Maintenance)**:
    * Nếu có sự thay đổi về cấu hình `.env`, cấu trúc bảng database (schema Drizzle), hoặc giao thức API/gRPC, bắt buộc phải cập nhật tài liệu tương ứng trong thư mục `docs/`.

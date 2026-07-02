@@ -94,7 +94,7 @@ sequenceDiagram
     ```
   - **Frontend (Next.js Call)**:
     ```typescript
-    // apps/web/app/problems/[id]/workspace.tsx
+    // apps/frontend/src/app/problems/[id]/workspace.tsx
     import { trpc } from '@/lib/trpc';
 
     const { mutateAsync: submitCode, isLoading } = trpc.submission.submit.useMutation();
@@ -317,7 +317,7 @@ npx drizzle-kit push
 
 2. **Khởi chạy Next.js Frontend**:
    ```bash
-   cd apps/web
+   cd apps/frontend
    npm run dev
    # Truy cập ứng dụng tại http://localhost:3000
    ```
