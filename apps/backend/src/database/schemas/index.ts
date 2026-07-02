@@ -9,3 +9,4 @@ export * from './extensions.schema';
 export * from './monitoring.schema';
 export * from './settings.schema';
 export * from './relations';
+export * from './translations.schema';

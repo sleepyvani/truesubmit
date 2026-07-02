@@ -49,5 +49,13 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettingsSchema = {
       twitter: '',
     },
   },
+  [SystemSettingKey.LOCALIZATION]: {
+    defaultLanguage: 'vi',
+    defaultTimezone: 'Asia/Ho_Chi_Minh',
+    languages: [
+      { lang: 'vi', order: 1, isEnabled: true },
+      { lang: 'en', order: 2, isEnabled: true },
+    ],
+  },
 };
 

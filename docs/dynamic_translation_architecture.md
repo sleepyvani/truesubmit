@@ -52,7 +52,42 @@ graph TD
 2. **Tầng 2 - Database (Ghi đè)**: Lưu trữ trong bảng `ui_translations`. Nếu có bản dịch do Admin tự định nghĩa trong Database, bản dịch này sẽ ghi đè giá trị của Tầng 1.
 3. **Tầng 3 - Caching Layer (Hiệu năng)**: Khi khởi động ứng dụng hoặc khi Admin bấm nút **"Publish"**, toàn bộ bản dịch trong Database được gộp thành một JSON object lớn và nạp vào Redis (hoặc Memory Cache của Server). Next.js SSR chỉ đọc dữ liệu từ cache này.
 
-### 2.2. Thiết Kế Cơ Sở Dữ Liệu (`ui_translations`)
+### 2.2. Thiết Kế Cơ Sở Dữ Liệu (Database Schema)
+
+#### 1. Cấu hình Ngôn ngữ & Múi giờ của Người dùng (`user_profiles`)
+```typescript
+import { pgTable, uuid, varchar } from 'drizzle-orm/pg-core';
+import { uuidv7 } from 'uuidv7';
+import { users } from './users';
+
+export const userProfiles = pgTable('user_profiles', {
+  id: uuid('id').primaryKey().$defaultFn(() => uuidv7()),
+  userId: uuid('user_id').references(() => users.id).notNull(),
+  
+  // Ngôn ngữ và Múi giờ cá nhân hóa của người dùng
+  preferredLanguage: varchar('preferred_language', { length: 10 }).default('vi').notNull(),
+  timezone: varchar('timezone', { length: 100 }).default('Asia/Ho_Chi_Minh').notNull(),
+});
+```
+
+#### 2. Cấu hình Bản địa hóa Hệ thống (`system_settings`)
+```typescript
+// Cấu hình con cho từng ngôn ngữ được hỗ trợ
+export interface LanguageSetting {
+  lang: string;      // Mã ngôn ngữ (e.g., 'vi', 'en')
+  order: number;     // Thứ tự sắp xếp hiển thị trên dropdown
+  isEnabled: boolean; // Trạng thái bật/tắt (cho phép/không cho phép dùng ngôn ngữ này)
+}
+
+// Cấu hình tổng thể hệ thống lưu trong system_settings (key: 'localization')
+export interface SystemLocalizationConfig {
+  defaultLanguage: string;      // Ngôn ngữ mặc định
+  defaultTimezone: string;      // Múi giờ mặc định
+  languages: LanguageSetting[]; // Danh sách các ngôn ngữ có cấu hình chi tiết (thứ tự & trạng thái)
+}
+```
+
+#### 3. Bảng Dịch thuật Giao diện (`ui_translations`)
 ```typescript
 import { pgTable, uuid, varchar, text, boolean, timestamp } from 'drizzle-orm/pg-core';
 import { uuidv7 } from 'uuidv7';

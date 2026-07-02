@@ -5,6 +5,7 @@ export enum SystemSettingKey {
   SUBMISSION_LIMITS = 'submission_limits',
   WORKER_QUEUE = 'worker_queue',
   WEBSITE_METADATA = 'website_metadata',
+  LOCALIZATION = 'localization',
 }
 
 export interface SandboxLimitsConfig {
@@ -50,6 +51,18 @@ export interface WebsiteMetadataConfig {
   };
 }
 
+export interface LanguageSetting {
+  lang: string;      // e.g. 'vi', 'en'
+  order: number;     // e.g. 1, 2
+  isEnabled: boolean; // e.g. true, false
+}
+
+export interface LocalizationConfig {
+  defaultLanguage: string;
+  defaultTimezone: string;
+  languages: LanguageSetting[];
+}
+
 export interface SystemSettingsSchema {
   [SystemSettingKey.SANDBOX_LIMITS]: SandboxLimitsConfig;
   [SystemSettingKey.ALLOWED_LANGUAGES]: string[];
@@ -57,6 +70,7 @@ export interface SystemSettingsSchema {
   [SystemSettingKey.SUBMISSION_LIMITS]: SubmissionLimitsConfig;
   [SystemSettingKey.WORKER_QUEUE]: WorkerQueueConfig;
   [SystemSettingKey.WEBSITE_METADATA]: WebsiteMetadataConfig;
+  [SystemSettingKey.LOCALIZATION]: LocalizationConfig;
 }
 
 export const WEBSITE_METADATA: WebsiteMetadataConfig = {

@@ -29,6 +29,8 @@ export const userProfiles = pgTable('user_profiles', {
   organization: varchar('organization', { length: 255 }),
   studentCode: varchar('student_code', { length: 100 }),
   className: varchar('class_name', { length: 100 }),
+  preferredLanguage: varchar('preferred_language', { length: 10 }).default('vi').notNull(),
+  timezone: varchar('timezone', { length: 100 }).default('Asia/Ho_Chi_Minh').notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
