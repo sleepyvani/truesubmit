@@ -37,6 +37,24 @@
       "skillPath": "SKILL.md",
       "computedHash": "3cc2e763f1e2923cce1b5173dd9cafbb0aca8df1644102c82dde263375de1ac7"
     },
+    "next-cache-components-adoption": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": "skills/next-cache-components-adoption/SKILL.md",
+      "computedHash": "aaee0946eff1ddcdeee10525953d32a11310e470ef4a13a2ebb3aa79bc1ae769"
+    },
+    "next-cache-components-optimizer": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": "skills/next-cache-components-optimizer/SKILL.md",
+      "computedHash": "b8d757a1fe10ebe7b10de1d5ee83f9bcdbd1de1e1147efc68cf249377f471067"
+    },
+    "next-dev-loop": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": "skills/next-dev-loop/SKILL.md",
+      "computedHash": "aad97b32ba6efd31e92d063ec77120a694fe0d4a9401daf9af4c205cd5e21b07"
+    },
     "nextjs-app-router-patterns": {
       "source": "wshobson/agents",
       "sourceType": "github",
@@ -56,16 +74,16 @@
       "computedHash": "3639bed1f40b3fbadae79fee631c42c89b2d1f5c30b05d5aa3cca06422a6bbbc"
     },
     "trpc": {
-      "source": "bobmatnyc/claude-mpm-skills",
+      "source": "mindrally/skills",
       "sourceType": "github",
-      "skillPath": "toolchains/typescript/api/trpc/SKILL.md",
-      "computedHash": "5f5a19b158dd9b4061cd18830b6274d3ad03e983f7414086824697f9a2f394a9"
+      "skillPath": "trpc/SKILL.md",
+      "computedHash": "36e188d67fabea61e4b891bc3a5d9f18f377632564a3ed0e780204de1a5e58e6"
     },
     "turborepo": {
       "source": "vercel/turborepo",
       "sourceType": "github",
       "skillPath": "skills/turborepo/SKILL.md",
-      "computedHash": "02d55b7d0eec2ed40eecb1a022b6e78106fb9951c8da0a7b0199104e358f43b7"
+      "computedHash": "83fd96a9823bb56e81c802c67ed7826307c49380f1b8dd21d826b1df2d93bc13"
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
