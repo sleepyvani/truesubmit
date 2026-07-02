@@ -1,6 +1,5 @@
 import Image, { type ImageProps } from "next/image";
 import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -12,18 +11,17 @@ const ThemeImage = (props: Props) => {
 
   return (
     <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
+      <Image {...rest} src={srcLight} className="img-light" />
+      <Image {...rest} src={srcDark} className="img-dark" />
     </>
   );
 };
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-sans">
+      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <ThemeImage
-          className={styles.logo}
           srcLight="turborepo-dark.svg"
           srcDark="turborepo-light.svg"
           alt="Turborepo logo"
@@ -31,26 +29,29 @@ export default function Home() {
           height={38}
           priority
         />
-        <ol>
+        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-mono space-y-2">
           <li>
-            Get started by editing <code>apps/frontend/src/app/page.tsx</code>
+            Get started by editing{" "}
+            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold font-mono">
+              apps/frontend/src/app/page.tsx
+            </code>
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
 
-        <div className={styles.ctas}>
+        <div className="flex gap-4 flex-col sm:flex-row">
           <a
-            className={styles.primary}
+            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
             href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
             target="_blank"
             rel="noopener noreferrer"
           >
             <Image
-              className={styles.logo}
               src="/vercel.svg"
               alt="Vercel logomark"
               width={20}
               height={20}
+              className="dark:invert"
             />
             Deploy now
           </a>
@@ -58,20 +59,24 @@ export default function Home() {
             href="https://turborepo.dev/docs?utm_source"
             target="_blank"
             rel="noopener noreferrer"
-            className={styles.secondary}
+            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
           >
             Read our docs
           </a>
         </div>
-        <Button appName="frontend" className={styles.secondary}>
+        <Button
+          appName="frontend"
+          className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
+        >
           Open alert
         </Button>
       </main>
-      <footer className={styles.footer}>
+      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center font-sans text-sm text-muted-foreground">
         <a
           href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
           target="_blank"
           rel="noopener noreferrer"
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
         >
           <Image
             aria-hidden
@@ -79,6 +84,7 @@ export default function Home() {
             alt="Window icon"
             width={16}
             height={16}
+            className="flex-shrink-0"
           />
           Examples
         </a>
@@ -86,6 +92,7 @@ export default function Home() {
           href="https://turborepo.dev?utm_source=create-turbo"
           target="_blank"
           rel="noopener noreferrer"
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
         >
           <Image
             aria-hidden
@@ -93,6 +100,7 @@ export default function Home() {
             alt="Globe icon"
             width={16}
             height={16}
+            className="flex-shrink-0"
           />
           Go to turborepo.dev →
         </a>
