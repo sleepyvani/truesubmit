@@ -1,6 +1,6 @@
-import { SystemSettingKey } from '@repo/constants';
+import { SystemSettingKey, SystemSettingsSchema } from '@repo/constants';
 
-export const DEFAULT_SYSTEM_SETTINGS = {
+export const DEFAULT_SYSTEM_SETTINGS: SystemSettingsSchema = {
   [SystemSettingKey.SANDBOX_LIMITS]: {
     cpuLimit: 2, // number of cores
     memoryLimitMb: 512, // MB
@@ -31,6 +31,7 @@ export const DEFAULT_SYSTEM_SETTINGS = {
     maxConcurrentJobs: 4, // max concurrent jobs per worker node
     jobRetryCount: 3, // retry attempts for failed container runs
     workerHeartbeatIntervalMs: 5000, // interval to check active worker status
+    workerSecretToken: 'default_worker_secret_token_change_me', // Token for workers to authenticate with the backend
   },
   [SystemSettingKey.WEBSITE_METADATA]: {
     title: 'TrueSubmit',
@@ -41,6 +42,12 @@ export const DEFAULT_SYSTEM_SETTINGS = {
     faviconUrl: '/favicon.ico',
     ogTitle: 'TrueSubmit - Automated Code Evaluation',
     ogDescription: 'Evaluate code submissions securely and fast.',
+    contactEmail: 'support@truesubmit.com',
+    socialLinks: {
+      github: 'https://github.com/sleepyvani/truesubmit',
+      discord: 'https://discord.gg/truesubmit',
+      twitter: '',
+    },
   },
 };
 

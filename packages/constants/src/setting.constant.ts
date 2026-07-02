@@ -7,7 +7,59 @@ export enum SystemSettingKey {
   WEBSITE_METADATA = 'website_metadata',
 }
 
-export const WEBSITE_METADATA = {
+export interface SandboxLimitsConfig {
+  cpuLimit: number;
+  memoryLimitMb: number;
+  timeLimitMs: number;
+  fileSizeLimitMb: number;
+}
+
+export interface SystemStatusConfig {
+  maintenanceMode: boolean;
+  registrationOpen: boolean;
+  submissionQueueEnabled: boolean;
+}
+
+export interface SubmissionLimitsConfig {
+  maxCodeSizeKb: number;
+  rateLimitSeconds: number;
+  maxSubmissionsPerDay: number;
+}
+
+export interface WorkerQueueConfig {
+  maxConcurrentJobs: number;
+  jobRetryCount: number;
+  workerHeartbeatIntervalMs: number;
+  workerSecretToken: string;
+}
+
+export interface WebsiteMetadataConfig {
+  title: string;
+  description: string;
+  keywords: string;
+  logoUrl: string;
+  thumbnailUrl: string;
+  faviconUrl: string;
+  ogTitle: string;
+  ogDescription: string;
+  contactEmail: string;
+  socialLinks: {
+    github: string;
+    discord: string;
+    twitter: string;
+  };
+}
+
+export interface SystemSettingsSchema {
+  [SystemSettingKey.SANDBOX_LIMITS]: SandboxLimitsConfig;
+  [SystemSettingKey.ALLOWED_LANGUAGES]: string[];
+  [SystemSettingKey.SYSTEM_STATUS]: SystemStatusConfig;
+  [SystemSettingKey.SUBMISSION_LIMITS]: SubmissionLimitsConfig;
+  [SystemSettingKey.WORKER_QUEUE]: WorkerQueueConfig;
+  [SystemSettingKey.WEBSITE_METADATA]: WebsiteMetadataConfig;
+}
+
+export const WEBSITE_METADATA: WebsiteMetadataConfig = {
   title: 'TrueSubmit',
   description: 'The Ultimate Automated Code Submission & Evaluation Platform',
   keywords: 'judging, competitive programming, sandbox, compiler',
@@ -16,6 +68,10 @@ export const WEBSITE_METADATA = {
   faviconUrl: '/favicon.ico',
   ogTitle: 'TrueSubmit - Automated Code Evaluation',
   ogDescription: 'Evaluate code submissions securely and fast.',
+  contactEmail: 'support@truesubmit.com',
+  socialLinks: {
+    github: 'https://github.com/sleepyvani/truesubmit',
+    discord: 'https://discord.gg/truesubmit',
+    twitter: '',
+  },
 };
-
- 

@@ -250,12 +250,27 @@ erDiagram
     submissions ||--|| submission_results : "produces"
 ```
 
-### ⚙️ Cấu hình động cho Admin (Dynamic Settings)
-Admin cấp cao nhất có thể thay đổi các cấu hình hệ thống trực tiếp thông qua giao diện Web. Các tham số này được lưu trong bảng `system_settings`:
-* **`SANDBOX_MAX_CONCURRENT`**: Số lượng sandbox chạy song song tối đa trên mỗi Worker (Mặc định: `8`).
-* **`SANDBOX_TIMEOUT_SECONDS`**: Thời gian tối đa cho một phiên chấm bài (Mặc định: `5s`).
-* **`SANDBOX_MEMORY_MB`**: Giới hạn RAM tối đa cho container (Mặc định: `256MB`).
-* **`SANDBOX_CPU_CORES`**: Giới hạn CPU Cores cho container (Mặc định: `0.5`).
+### ⚙️ Cấu hình động cho Admin (Dynamic Settings & Extensions)
+Hệ thống sử dụng cơ chế cấu hình động được lưu trữ hoàn toàn dưới dạng dữ liệu định kiểu (TypeScript Interfaces) trong cơ sở dữ liệu để dễ dàng hiển thị lên giao diện **Configuration Wizard**:
+
+#### 1. Cấu hình Hệ thống (`system_settings`)
+Lưu trữ thông số hoạt động cốt lõi của nền tảng với các khóa trong enum `SystemSettingKey`:
+* **`sandbox_limits`** (`SandboxLimitsConfig`): Giới hạn CPU Cores, RAM tối đa (MB), thời gian chạy tối đa (ms), dung lượng tệp code tối đa (MB) mặc định của Sandbox.
+* **`allowed_languages`** (`string[]`): Danh sách định danh các ngôn ngữ lập trình được phép nộp bài (C, C++, Java, Python, Go, Rust, JavaScript, TypeScript).
+* **`system_status`** (`SystemStatusConfig`): Cờ trạng thái bảo trì (`maintenanceMode`), mở đăng ký tài khoản (`registrationOpen`), kích hoạt hàng đợi chấm (`submissionQueueEnabled`).
+* **`submission_limits`** (`SubmissionLimitsConfig`): Dung lượng mã nguồn tối đa (KB), thời gian tối thiểu giữa các lần nộp (rate limit), số lượng nộp tối đa/ngày trên mỗi tài khoản.
+* **`worker_queue`** (`WorkerQueueConfig`): Số lượng job song song tối đa mỗi worker, số lần thử lại khi container lỗi, chu kỳ heartbeat của worker, và khóa xác thực kết nối gRPC nội bộ (`workerSecretToken`).
+* **`website_metadata`** (`WebsiteMetadataConfig`): SEO Metadata (Tiêu đề, mô tả, từ khóa, OpenGraph), logo, favicon, email hỗ trợ (`contactEmail`), và liên kết mạng xã hội (`socialLinks`).
+
+#### 2. Cấu hình Dịch vụ Tích hợp (`extensions` & `extension_configs`)
+Quản lý các module tích hợp mở rộng, định nghĩa trong enum `ExtensionKey`:
+* **`media_storage`** (`MediaStorageConfig`): Cấu hình nơi lưu trữ media (Local, AWS S3, Cloudflare R2, Tigris) tích hợp sẵn tính năng tiền xử lý hình ảnh (`imageProcessing` bao gồm tự động nén, chuyển sang WebP, loại bỏ metadata) và giới hạn dung lượng tải lên.
+* **`problem_storage`** (`ProblemStorageConfig`): Nơi lưu trữ bộ dữ liệu testcase, code mẫu (Local, AWS S3, Cloudflare R2, Tigris).
+* **`authentication`** (`AuthenticationConfig`): Cấu hình Better Auth (Secret key, base URL, bật/tắt Email-Password, OAuth Google/GitHub/Discord/GitLab, các plugins Two-Factor/Passkey).
+* **`captcha`** (`CaptchaConfig`): Bật/tắt Cloudflare Turnstile, Google reCAPTCHA, hCaptcha và khai báo các action bắt buộc phải xác thực (`requiredOn` như đăng ký, đăng nhập, nộp bài).
+* **`analytics_marketing`** (`AnalyticsMarketingConfig`): Google Analytics (GA4) và Google Ads Remarketing.
+* **`security_settings`** (`SecuritySettingsConfig`): Tự động phòng chống spam IP, brute force khóa tài khoản, bảo vệ phiên đăng nhập (chặn đa phiên, phát hiện thay đổi IP/User-Agent).
+* **`system_notification`** (`NotificationConfig`): Thiết lập các cổng gửi tin SMTP (Email), Telegram Bot, Discord Webhook, Slack Webhook và đăng ký kích hoạt theo từng sự kiện hệ thống (`triggers` như đăng ký, đổi mật khẩu, nộp bài).
 
 ---
 
