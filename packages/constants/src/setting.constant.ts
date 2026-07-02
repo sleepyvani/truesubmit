@@ -31,7 +31,7 @@ export const DEFAULT_SYSTEM_SETTINGS: Record<SystemSettingKey, any> = {
 export const WEBSITE_METADATA = {
   title: 'TrueSubmit',
   description: 'The Ultimate Automated Code Submission & Evaluation Platform',
-  keywords: ['judging', 'competitive programming', 'sandbox', 'compiler'],
+  keywords: 'judging, competitive programming, sandbox, compiler',
   logoLightUrl: '/turborepo-light.svg',
   logoDarkUrl: '/turborepo-dark.svg',
   thumbnailUrl: '/vercel.svg',
