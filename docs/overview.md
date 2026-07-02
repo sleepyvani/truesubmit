@@ -2,7 +2,7 @@
 
 TrueSubmit là hệ thống chấm bài trực tuyến (Online Judge) hiệu năng cao, được thiết kế để giải quyết bài toán **1000 sinh viên nộp bài đồng thời trong 1 giờ thi** với tốc độ biên dịch cực nhanh (sub-50ms) và phản hồi kết quả tức thời.
 
-Để loại bỏ hoàn toàn sự phức tạp của việc định nghĩa URL truyền thống (REST API) và tăng tốc độ truyền tải dữ liệu, hệ thống sử dụng các công nghệ tiên tiến nhất năm 2026: **tRPC**, **gRPC**, **Redis Queue**, và **Server-Sent Events (SSE)**.
+Để loại bỏ hoàn toàn sự phức tạp của việc định nghĩa URL truyền thống (REST API) và tăng tốc độ truyền tải dữ liệu, hệ thống sử dụng các công nghệ tiên tiến nhất năm 2026: **tRPC**, **gRPC**, **NATS JetStream**, và **Server-Sent Events (SSE)**.
 
 ---
 
@@ -14,7 +14,7 @@ sequenceDiagram
     actor SinhVien as Sinh viên
     participant Web as "Next.js Web (Frontend)"
     participant API as "NestJS API (Gateway)"
-    participant Redis as Redis Queue
+    participant NATS as NATS JetStream
     participant Worker as "Golang Worker (Chấm bài)"
     participant Sandbox as "Docker Sandbox (RAMDisk)"
     participant DB as "PostgreSQL (Drizzle)"
@@ -23,14 +23,14 @@ sequenceDiagram
     Web->>API: 1. Gửi bài nộp qua tRPC Mutation (Không URL)
     activate API
     API->>DB: 2. Lưu trạng thái PENDING & Đọc giới hạn bài toán
-    API->>Redis: 3. Đẩy Job vào Queue (LPUSH)
+    API->>NATS: 3. Đẩy Job vào Stream (Publish)
     API-->>Web: 4. Trả về Submission ID
     deactivate API
 
     Web->>API: 5. Mở kết nối SSE lắng nghe kết quả
     activate API
 
-    Redis->>Worker: 6. Nhận Job bất đồng bộ (BRPOP)
+    NATS->>Worker: 6. Nhận Job bất đồng bộ (Pull Fetch)
     activate Worker
     Worker->>Sandbox: 7. Lấy Container Ấm (Warm Pool) & Mount RAMDisk (tmpfs)
     Worker->>Sandbox: 8. Sao chép code và chạy (Docker SDK)
@@ -79,15 +79,14 @@ sequenceDiagram
             where: eq(problems.id, input.problemId)
           });
 
-          // Đẩy vào Redis Queue bất đồng bộ
-          await ctx.redis.lpush('truesubmit_queue', JSON.stringify({
+          // Đẩy vào NATS JetStream bất đồng bộ
+          await ctx.queueService.pushSubmission({
             submissionId: submission[0].id,
             code: input.code,
             language: input.language,
             timeLimitMs: problem.timeLimitMs,
             memoryLimitMb: problem.memoryLimitMb,
-            cpuCores: problem.cpuCores
-          }));
+          });
 
           return { submissionId: submission[0].id };
         })
@@ -111,18 +110,17 @@ sequenceDiagram
     };
     ```
 
-### 2. Redis Queue (Giảm chấn tải cao)
-* **Mục đích**: Bộ đệm trung gian lưu trữ các Job chấm bài để Worker xử lý tuần tự/song song theo tài nguyên cho phép, bảo vệ Go Worker không bị sập vì tạo quá nhiều Docker Sandbox cùng lúc.
+### 2. NATS JetStream (Giảm chấn tải cao)
+* **Mục đích**: Lưu trữ các Job chấm bài bền vững và phân phối tin nhắn theo cơ chế Pull Consumer, kiểm soát áp lực xử lý (backpressure) cực tốt và hỗ trợ tính năng truyền tải lại (retry/redelivery) tự động khi có worker gặp sự cố.
 * **Chi tiết cấu trúc Payload (Job Format)**:
-  Mỗi Job được đẩy lên hàng đợi `truesubmit_queue` dưới dạng chuỗi JSON có cấu trúc như sau:
+  Mỗi Job được đẩy lên NATS JetStream dưới dạng chuỗi JSON có cấu trúc như sau:
   ```json
   {
     "submissionId": "f789d98e-4a6c-48d9-952b-87d3a01bf280",
     "code": "#include <iostream>\nusing namespace std;\nint main() { cout << \"Hello World\"; return 0; }",
     "language": "cpp",
     "timeLimitMs": 1000,
-    "memoryLimitMb": 256,
-    "cpuCores": 0.5
+    "memoryLimitMb": 256
   }
   ```
 
@@ -294,8 +292,8 @@ truesubmit/
 
 ## 🚀 7. Hướng Dẫn Khởi Chạy Nhanh (Quick Start)
 
-### Bước 1: Khởi động Cơ sở dữ liệu và Redis
-Chạy Docker Compose để khởi chạy PostgreSQL và Redis:
+### Bước 1: Khởi động Cơ sở dữ liệu và NATS
+Chạy Docker Compose để khởi chạy PostgreSQL và NATS Server:
 ```bash
 docker compose up -d
 ```
@@ -328,5 +326,5 @@ npx drizzle-kit push
    ```bash
    cd apps/worker
    go run main.go
-   # Worker kết nối đến Redis Queue và sẵn sàng gọi gRPC trả kết quả
+   # Worker kết nối đến NATS JetStream và sẵn sàng gọi gRPC trả kết quả
    ```
